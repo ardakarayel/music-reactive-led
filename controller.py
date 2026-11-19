@@ -15,10 +15,13 @@ from device import MockDevice, TuyaDevice
 from effects import EFFECT_NAMES, EFFECTS, Engine, hsv_to_rgb, render
 from music import Music
 import sahne as sahne_mod
+import efekt as efekt_mod
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 SCENES_PATH = os.path.join(BASE_DIR, "scenes.json")
+EFEKTLER_PATH = os.path.join(BASE_DIR, "efektler.json")   # kullanici efektleri
+EFEKT_ONIZLEME = "__onizleme__"
 AYAR_PATH = os.path.join(BASE_DIR, "ayarlar.json")
 MODLAR_PATH = os.path.join(BASE_DIR, "modlar.json")   # laboratuvar modlari
 DISARI_DIR = os.path.join(BASE_DIR, "disari")          # disa aktarilan modlar
@@ -99,6 +102,23 @@ def _sahneleri_yukle(yol):
     return temiz
 
 
+def _efektleri_yukle(yol):
+    try:
+        with open(yol, encoding="utf-8") as f:
+            veri = json.load(f)
+    except (OSError, ValueError):
+        return []
+    out = []
+    for e in veri if isinstance(veri, list) else []:
+        if not isinstance(e, dict) or not isinstance(e.get("id"), str):
+            continue
+        tanim = efekt_mod.temizle(e.get("tanim"))
+        if tanim is None:
+            continue
+        out.append({"id": e["id"], "ad": str(e.get("ad") or "Efekt")[:SAHNE_AD_MAX], "tanim": tanim})
+    return out[:efekt_mod.EFEKT_MAX]
+
+
 def _sahne_kaydi(sid, ad, adimlar, dongu):
     """Kullanici sahnesi: adimlar + dongu; h, s, v ilk adimdan (kart onizlemesi ve eski arayuz icin)."""
     h, s, v = sahne_mod.renk_hsv(adimlar[0]["renk"], adimlar[0]["v"])
@@ -137,7 +157,12 @@ class Api:
         self._timer_end = None
         self._scenes = _sahneleri_yukle(scenes_path)
         self._sahne = None           # calan cok adimli sahne: {"id", "adimlar", "dongu", "t0"}
-        self._onizleme_onceki = None  # sahne duzenleyici onizlemesinden once durum (geri donmek icin)
+        self._onizleme_onceki = None  # sahne/efekt duzenleyici onizlemesinden once durum (geri donmek icin)
+        self._efektler_yolu = EFEKTLER_PATH if scenes_path == SCENES_PATH else os.path.join(
+            os.path.dirname(scenes_path) or ".", "efektler.json")
+        self._efektler = _efektleri_yukle(self._efektler_yolu)
+        self._efekt_t0 = time.monotonic()
+        self._efekt_onizleme = None   # duzenleyicide denenen tanim
         if device is None:
             device, self._uyari = _cihaz_yukle(config_path)
         else:
@@ -203,6 +228,15 @@ class Api:
             mode, h, s, v = self._mode, self._h, self._s, self._v
             effect, speed = self._effect, self._effect_speed
             style = self._music_style
+            tanim = None
+            if mode == "effect" and effect and effect not in EFFECT_NAMES:
+                tanim = self._efekt_tanim(effect)
+            t0 = self._efekt_t0
+        if mode == "effect" and tanim is not None:
+            # onizlemede hiz carpani 1 (duzenleyicideki gibi); kayitli efektte efekt kartindaki hiz surgusu
+            k = 1.0 if effect == EFEKT_ONIZLEME else efekt_mod.hiz_carpani(speed)
+            eh, es, ev = efekt_mod.an(tanim, (t - t0) * k)
+            return hsv_to_rgb(eh, es, ev * v / 100.0), 0.0
         if mode == "effect" and effect:
             return render(effect, t, speed, h, s, v), 0.0
         if mode == "scene":
@@ -292,6 +326,17 @@ class Api:
             self._timer = None
         self._guncelle(lambda: None, power=False)
 
+    def _efekt_tanim(self, ad):
+        """self._lock altinda: "ozel:<id>" ya da onizleme adi -> tanim ya da None."""
+        if ad == EFEKT_ONIZLEME:
+            return self._efekt_onizleme
+        if isinstance(ad, str) and ad.startswith("ozel:"):
+            eid = ad[5:]
+            for e in self._efektler:
+                if e["id"] == eid:
+                    return e["tanim"]
+        return None
+
     def _sahne_bul(self, sid):
         for s in YERLESIK:
             if s["id"] == sid:
@@ -329,6 +374,8 @@ class Api:
                           "adimlar": [dict(a) for a in s["adimlar"]], "dongu": s["dongu"]}
                          for s in self._scenes]
             sahne_aktif = self._sahne["id"] if (self._mode == "scene" and self._sahne) else None
+            ozel_efektler = [{"name": "ozel:" + e["id"], "label": e["ad"], "ozel": True, "tanim": dict(e["tanim"])}
+                             for e in self._efektler]
             durum = {
                 "power": self._power,
                 "mode": self._mode,
@@ -340,6 +387,7 @@ class Api:
                 "music_style": self._music_style,
                 "timer_remaining": kalan,
                 "sahne_aktif": sahne_aktif,
+                "ozel_efektler": ozel_efektler,
             }
             vokal_agirlik, yogunluk, gecikme_ms = self._vokal_agirlik, self._yogunluk, self._gecikme_ms
         m = self._music
@@ -366,7 +414,8 @@ class Api:
             "scenes": [dict(s, builtin=True) for s in YERLESIK] + kullanici,
             "sahne_aktif": durum.get("sahne_aktif"),
             "sahne_onizleme": self._onizleme_onceki is not None,
-            "effects": [dict(e) for e in EFFECTS],
+            "effects": [dict(e) for e in EFFECTS] + durum["ozel_efektler"],
+            "efekt_max": efekt_mod.EFEKT_MAX,
             "send_hz": self._send_hz,
             "lab_demo": self._demo,
             "spec_shift": self._spec_shift,
@@ -415,12 +464,20 @@ class Api:
         return self.get_state()
 
     def start_effect(self, name, speed):
-        if not (isinstance(name, str) and name in EFFECT_NAMES):
+        if not isinstance(name, str):
             return self.get_state()
+        if name not in EFFECT_NAMES:
+            with self._lock:
+                bilinen = name.startswith("ozel:") and self._efekt_tanim(name) is not None
+            if not bilinen:
+                return self.get_state()
         self._music.stop()
+        self._onizleme_onceki = None
 
         def f():
             self._mode = "effect"
+            if self._effect != name:
+                self._efekt_t0 = time.monotonic()
             self._effect = name
             self._effect_speed = _sayi(speed, 1, 100, self._effect_speed)
         self._guncelle(f, power=True)
@@ -498,12 +555,7 @@ class Api:
         temiz = sahne_mod.adimlar_temizle(adimlar)
         if not temiz:
             return self.get_state()
-        if self._onizleme_onceki is None:
-            with self._lock:
-                self._onizleme_onceki = {"mode": self._mode, "h": self._h, "s": self._s, "v": self._v,
-                                         "effect": self._effect, "sahne": self._sahne, "power": self._power,
-                                         "muzik": self._mode == "music"}
-            self._music.stop()
+        self._onizleme_sakla()
         with self._lock:
             ayni = (self._mode == "scene" and self._sahne and self._sahne["id"] == "__onizleme__"
                     and not bastan)
@@ -517,6 +569,90 @@ class Api:
         self._guncelle(f, power=True)
         return self.get_state()
 
+    def _onizleme_sakla(self):
+        """Ilk onizlemede onceki durumu saklar (sahne ve efekt duzenleyici ortak)."""
+        if self._onizleme_onceki is None:
+            with self._lock:
+                self._onizleme_onceki = {"mode": self._mode, "h": self._h, "s": self._s, "v": self._v,
+                                         "effect": self._effect, "speed": self._effect_speed,
+                                         "sahne": self._sahne, "power": self._power, "t0": self._efekt_t0}
+            self._music.stop()
+
+    # ----- efekt duzenleyici -----
+
+    def efekt_kaydet(self, eid, ad, tanim):
+        """Yeni efekt (eid bos) ya da var olani gunceller. Donus: durum + "efekt_id" (hata: "efekt_hata")."""
+        ad = str(ad or "").strip()[:SAHNE_AD_MAX]
+        temiz = efekt_mod.temizle(tanim)
+        if not ad or temiz is None:
+            durum = self.get_state()
+            durum["efekt_hata"] = "Ad ve en az bir renk gerekli."
+            return durum
+        with self._scene_lock:
+            with self._lock:
+                var = isinstance(eid, str) and any(e["id"] == eid for e in self._efektler)
+                if not var and len(self._efektler) >= efekt_mod.EFEKT_MAX:
+                    durum_hata = "En çok %d efekt kaydedilebilir." % efekt_mod.EFEKT_MAX
+                else:
+                    durum_hata = None
+                    yeni_id = eid if var else uuid.uuid4().hex[:8]
+                    kayit = {"id": yeni_id, "ad": ad, "tanim": temiz}
+                    if var:
+                        self._efektler = [kayit if e["id"] == yeni_id else e for e in self._efektler]
+                    else:
+                        self._efektler.append(kayit)
+                    liste = [dict(e) for e in self._efektler]
+            if durum_hata is None:
+                self._efekt_dosya_yaz(liste)
+        durum = self.get_state()
+        if durum_hata:
+            durum["efekt_hata"] = durum_hata
+        else:
+            durum["efekt_id"] = yeni_id
+        return durum
+
+    def efekt_sil(self, eid):
+        with self._scene_lock:
+            with self._lock:
+                kalan = [e for e in self._efektler if e["id"] != eid]
+                degisti = len(kalan) != len(self._efektler)
+                self._efektler = kalan
+                if self._mode == "effect" and self._effect == "ozel:" + str(eid):
+                    self._mode = "colour"
+                    self._effect = None
+                    self._engine.force()
+                liste = [dict(e) for e in kalan]
+            if degisti:
+                self._efekt_dosya_yaz(liste)
+        return self.get_state()
+
+    def _efekt_dosya_yaz(self, liste):
+        try:
+            _sahneleri_yaz(self._efektler_yolu, liste)
+        except OSError as e:
+            self._uyari = f"efektler.json yazılamadı ({type(e).__name__})"
+
+    def efekt_onizle(self, tanim, bastan=False):
+        """Duzenleyicide canli deneme (sahne_onizle gibi); bitirmek icin sahne_onizle_bitir / efekt_onizle_bitir."""
+        temiz = efekt_mod.temizle(tanim)
+        if temiz is None:
+            return self.get_state()
+        self._onizleme_sakla()
+
+        def f():
+            if not (self._mode == "effect" and self._effect == EFEKT_ONIZLEME) or bastan:
+                self._efekt_t0 = time.monotonic()
+            self._mode = "effect"
+            self._effect = EFEKT_ONIZLEME
+            self._efekt_onizleme = temiz
+            self._sahne = None
+            self._v = 100.0
+        self._guncelle(f, power=True)
+        return self.get_state()
+
+    def efekt_onizle_bitir(self, geri_don=True):
+        return self.sahne_onizle_bitir(geri_don)
+
     def sahne_onizle_bitir(self, geri_don=True):
         """Onizlemeyi bitirir. geri_don: duzenleyiciden onceki renge/efekte doner (muzik acikti ise rengine)."""
         once = self._onizleme_onceki
@@ -527,6 +663,7 @@ class Api:
             return self.get_state()
 
         def f():
+            self._efekt_onizleme = None if self._effect != EFEKT_ONIZLEME else self._efekt_onizleme
             mode = once["mode"]
             if mode == "music":
                 mode = "colour"
@@ -535,7 +672,11 @@ class Api:
             self._mode = mode
             self._h, self._s, self._v = once["h"], once["s"], once["v"]
             self._effect = once["effect"] if mode == "effect" else None
-            self._sahne = once["sahne"] if mode == "scene" else None
+            if mode == "effect" and self._effect == EFEKT_ONIZLEME:
+                self._mode, self._effect = "colour", None
+            self._effect_speed = once.get("speed", self._effect_speed)
+            self._efekt_t0 = once.get("t0", self._efekt_t0)
+            self._sahne = once["sahne"] if self._mode == "scene" else None
         self._guncelle(f, power=once["power"])
         return self.get_state()
 

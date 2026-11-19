@@ -16,6 +16,9 @@ import pystray
 from controller import BASE_DIR, Api
 
 KISAYOL = "ctrl+alt+l"
+SIMGE = os.path.join(BASE_DIR, "icon.ico")   # masaustu kisayoluyla ayni simge
+# Gorev cubugu: pythonw'nin Python simgesi yerine kendi simgemiz ve ayri grup (Arda, 2026-11-19)
+UYGULAMA_KIMLIGI = "ArdaKarayel.MusicReactiveLED"
 TEK_PORT = 47391   # yalniz 127.0.0.1: tek panel kilidi ve "one gel" mesaji
 
 
@@ -51,7 +54,20 @@ def _kilidi_dinle(sunucu, one_getir):
             c.close()
 
 
+def _uygulama_kimligi():
+    """Windows gorev cubugu bu kimlikle pencereyi python.exe grubundan ayirir, pencere simgesini gosterir."""
+    try:
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(UYGULAMA_KIMLIGI)
+    except Exception:
+        pass
+
+
 def _simge():
+    try:
+        return Image.open(SIMGE)
+    except Exception:
+        pass
     img = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     d.ellipse((4, 4, 60, 60), fill=(255, 140, 40, 255), outline=(255, 255, 255, 255), width=3)
@@ -72,6 +88,7 @@ def main():
     kilit = _tek_panel_kilidi()
     if kilit is None:
         sys.exit(0)   # panel zaten acik; one getirildi
+    _uygulama_kimligi()
     api = Api()
     durum = {"kapat": False, "icon": None}
     index = os.path.join(BASE_DIR, "web", "index.html")
@@ -132,7 +149,7 @@ def main():
     kb = _kisayol_kur(ac_kapa)
 
     try:
-        webview.start()
+        webview.start(icon=SIMGE if os.path.isfile(SIMGE) else None)
     finally:
         if kb is not None:
             try:

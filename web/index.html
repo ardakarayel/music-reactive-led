@@ -1562,6 +1562,12 @@ input[type="range"]::-moz-range-thumb {
   #pg-effects:not(.big) .fx { min-height: 0; padding: 6px; gap: 5px; }
   #pg-effects:not(.big) .fx-prev { flex: 1 1 auto; height: auto; min-height: 36px; }
   #pg-effects:not(.big) .fx-name { font-size: 12px; }
+  #pg-effects:not(.big) #effectList.cok { grid-template-rows: none; grid-auto-rows: minmax(0, 1fr); }
+  #pg-effects:not(.big) .fx-extra,
+  #pg-effects:not(.big) .fx .sedit { display: none; }
+  #pg-effects:not(.big) .fx-new b { font-size: 20px; }
+  #pg-effects.big #effectList.cok { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  #pg-effects.big #effectList.cok .fx-prev { height: clamp(48px, 8vh, 110px); }
   #pg-effects:not(.big) .sl-card,
   #pg-effects:not(.big) #stopEffect,
   #pg-effects:not(.big) #effectStatus { display: none; }
@@ -1768,6 +1774,45 @@ input[type="range"]::-moz-range-thumb {
 body.lab-on .app { display: none; }
 
 /* ---- sahne duzenleyici (Arda, 2026-11-19): adim adim renk akisi. Kaydirma yok: en cok 12 adim. ---- */
+
+/* ---- efekt duzenleyici (Arda, 2026-11-19): renk hareketi + parlaklik hareketi. Kaydirma yok. ---- */
+body.efd-on .app { display: none; }
+body.efd-on .toast { bottom: 84px; }
+.efd .lab-top { gap: 12px; }
+.efd-hist { position: relative; height: 64px; border-radius: 12px; overflow: hidden; background: rgba(0, 0, 0, 0.35); }
+.efd-hist canvas { display: block; width: 100%; height: 100%; }
+.efd-body { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; overflow: hidden; }
+.efd-col { display: flex; flex-direction: column; gap: 16px; padding: 16px 20px; min-height: 0; overflow: hidden; }
+.efd-col h3 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-2); }
+.efd-f { display: flex; flex-direction: column; gap: 8px; }
+.efd-f > label, .efd-l { font-size: 12.5px; color: var(--text-2); display: flex; justify-content: space-between; gap: 10px; }
+.efd-l b { color: var(--text); font-weight: 600; }
+.efd-seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.efd-seg button { height: 32px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.05);
+  color: var(--text-2); font: inherit; font-size: 13px; cursor: pointer; }
+.efd-seg button:hover { color: var(--text); }
+.efd-seg button[aria-pressed="true"] { color: #fff; background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.5); }
+.efd-cs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.efd-cs .lp-pal-c { width: 40px; height: 30px; }
+.efd-cs .lp-pal-add { width: 40px; height: 30px; }
+.efd-hint { margin: 0; font-size: 12px; color: var(--text-2); line-height: 1.4; }
+.efd-pre { flex: none; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 18px; }
+.efd-pre span { font-size: 12.5px; color: var(--text-2); margin-right: 4px; }
+.efd-f input[type="range"] { width: 100%; }
+.efd-f.off { opacity: 0.4; }
+@media (max-height: 820px) {
+  .efd-col { gap: 10px; padding: 12px 16px; }
+  .efd-hist { height: 48px; }
+  .efd-pre { padding: 8px 14px; }
+}
+/* efekt kartlari: yeni efekt kutusu ve ozel efektler */
+.fx-new { align-items: center; justify-content: center; border: 1px dashed rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.03); color: var(--text-2); }
+.fx-new b { font-size: 26px; font-weight: 300; line-height: 1; }
+.fx-new span { font-size: 12px; }
+.fx-new:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.45); }
+.fx-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.fx-row .fx-name { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-ozel::before { background: var(--ozel, linear-gradient(90deg, #555, #222)); }
 body.sed-on .app { display: none; }
 body.sed-on .toast { bottom: 84px; }
 .sed .lab-top { gap: 12px; }
@@ -2578,6 +2623,56 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
     </button>
   </nav>
 </main>
+
+<div id="efd" class="lab sed efd" role="dialog" aria-label="Efekt düzenleyici" hidden>
+  <div class="lab-top">
+    <button id="efdBack" class="lab-back" type="button">← Geri</button>
+    <div id="efdTitle" class="lab-title">Yeni efekt</div>
+    <input id="efdAd" class="sed-ad" type="text" maxlength="40" placeholder="Efekt adı" aria-label="Efekt adı" autocomplete="off">
+    <span class="sed-sp"></span>
+    <div class="lab-seg" role="group" aria-label="Çıkış">
+      <button id="efdLive" type="button" aria-pressed="true" title="Düzenlerken şeritte oynar">Canlı</button>
+      <button id="efdDemo" type="button" aria-pressed="false" title="Yalnız ekranda oynar, şerit değişmez">Demo</button>
+    </div>
+    <button id="efdDel" class="lab-btn danger" type="button">Sil</button>
+    <button id="efdSave" class="lab-btn pri" type="button">Kaydet</button>
+  </div>
+  <div class="glass sed-prev">
+    <div id="efdSwatch" class="sed-swatch" aria-hidden="true"></div>
+    <div class="efd-hist" title="Son 6 saniye"><canvas id="efdCanvas"></canvas></div>
+    <div class="sed-meta"><span id="efdInfo"></span><button id="efdRestart" class="lab-btn" type="button">↺ Baştan</button></div>
+  </div>
+  <div class="efd-body">
+    <section class="glass efd-col" aria-label="Renk">
+      <h3>Renk</h3>
+      <div class="efd-f"><div class="efd-l">Renkler <span id="efdCnt"></span></div><div id="efdCs" class="efd-cs"></div></div>
+      <div class="efd-f"><div class="efd-l">Renk hareketi</div><div id="efdRh" class="efd-seg" role="group" aria-label="Renk hareketi"></div></div>
+      <div class="efd-f" id="efdRsF"><div class="efd-l"><span id="efdRsL">Bir renkte kalma</span><b id="efdRsV"></b></div>
+        <input id="efdRs" type="range" min="0.1" max="20" step="0.1" aria-label="Renk süresi"></div>
+      <div class="efd-f"><div class="efd-l"><span>Ton titreşimi (renk hafifçe oynar)</span><b id="efdTiV"></b></div>
+        <input id="efdTi" type="range" min="0" max="90" step="1" aria-label="Ton titreşimi"></div>
+    </section>
+    <section class="glass efd-col" aria-label="Parlaklık">
+      <h3>Parlaklık</h3>
+      <div class="efd-f"><div class="efd-l">Parlaklık hareketi</div><div id="efdPh" class="efd-seg" role="group" aria-label="Parlaklık hareketi"></div></div>
+      <div class="efd-f" id="efdPsF"><div class="efd-l"><span>Döngü süresi</span><b id="efdPsV"></b></div>
+        <input id="efdPs" type="range" min="0.05" max="10" step="0.05" aria-label="Parlaklık döngü süresi"></div>
+      <div class="efd-f" id="efdMinF"><div class="efd-l"><span>En düşük parlaklık</span><b id="efdMinV"></b></div>
+        <input id="efdMin" type="range" min="0" max="100" step="1" aria-label="En düşük parlaklık"></div>
+      <div class="efd-f"><div class="efd-l"><span>En yüksek parlaklık</span><b id="efdMaxV"></b></div>
+        <input id="efdMax" type="range" min="0" max="100" step="1" aria-label="En yüksek parlaklık"></div>
+      <p class="efd-hint">Kayıtlı efekt, Efektler kartındaki Hız sürgüsü 50'deyken burada gördüğün hızda oynar; sürgü onu yavaşlatır ya da hızlandırır.</p>
+    </section>
+  </div>
+  <div class="glass efd-pre"><span>Hazır başlangıç:</span><div id="efdPre" class="efd-seg"></div></div>
+  <input id="efdColor" class="lp-pal-in" type="color" tabindex="-1" aria-hidden="true">
+  <div id="efdAsk" class="sed-ask" hidden>
+    <div class="glass" role="alertdialog" aria-modal="true">
+      <p id="efdAskMsg"></p>
+      <div id="efdAskBtns" class="sed-ask-b"></div>
+    </div>
+  </div>
+</div>
 
 <div id="sed" class="lab sed" role="dialog" aria-label="Sahne düzenleyici" hidden>
   <div class="lab-top">
@@ -3419,6 +3514,18 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
         s.h = 0; s.s = 80; s.v = adimlar[0].v;
         o = snap(); o.sahne_id = s.id; return o;
       },
+      efekt_kaydet: async function (id, ad, tanim) {
+        var n = String(ad || "").trim(), o;
+        if (!n || !tanim || !Array.isArray(tanim.renkler) || !tanim.renkler.length) { o = snap(); o.efekt_hata = "Ad ve en az bir renk gerekli."; return o; }
+        var e = null;
+        for (var i = 0; i < st.effects.length; i++) if (st.effects[i].name === "ozel:" + id) e = st.effects[i];
+        if (!e) { e = { name: "ozel:m" + (seq++), ozel: true }; st.effects.push(e); }
+        e.label = n.slice(0, 40); e.tanim = JSON.parse(JSON.stringify(tanim));
+        o = snap(); o.efekt_id = e.name.slice(5); return o;
+      },
+      efekt_sil: async function (id) { st.effects = st.effects.filter(function (e) { return e.name !== "ozel:" + id; }); return snap(); },
+      efekt_onizle: async function () { st.power = true; st.mode = "effect"; st.effect = { name: "__onizleme__", speed: 50 }; return snap(); },
+      efekt_onizle_bitir: async function () { st.mode = "colour"; st.effect = null; return snap(); },
       sahne_onizle: async function () { st.power = true; st.mode = "scene"; st.sahne_onizleme = true; return snap(); },
       sahne_onizle_bitir: async function () { st.mode = "colour"; st.sahne_onizleme = false; return snap(); },
       delete_scene: async function (id) {
@@ -3848,6 +3955,7 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
     for (var i = 0; i < list.length; i++) {
       if (list[i].name === name) return String(list[i].label || name);
     }
+    if (name === "__onizleme__") return "Deneme";
     return String(name);
   }
   function renderTopInfo() {
@@ -3956,15 +4064,35 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
     if (sig !== effectsSig) {
       effectsSig = sig;
       effectList.textContent = "";
-      if (!list.length) effectList.appendChild(mk("p", "empty", "Efekt yok."));
+      var ozelSay = 0;
       list.forEach(function (ef) {
         var name = String(ef.name);
         var card = mk("div", "glass lift fx");
         card.dataset.name = name;
         card.setAttribute("role", "button");
         card.tabIndex = 0;
-        card.appendChild(mk("div", "fx-prev " + (PREVIEW_FX[name] ? "p-" + name : "p-generic")));
-        card.appendChild(mk("span", "fx-name", String(ef.label || name)));
+        if (ef.ozel) {
+          if (ozelSay >= 2) card.classList.add("fx-extra");
+          ozelSay++;
+          var pv = mk("div", "fx-prev p-ozel");
+          var rr = ef.tanim && Array.isArray(ef.tanim.renkler) ? ef.tanim.renkler : [];
+          var cs = rr.map(function (c) { return sedHex(c); });
+          if (cs.length === 1) cs.push("#07080d");
+          pv.style.setProperty("--ozel", cs.length ? "linear-gradient(110deg, " + cs.join(", ") + ")" : "");
+          card.appendChild(pv);
+          var fr = mk("div", "fx-row");
+          fr.appendChild(mk("span", "fx-name", String(ef.label || name)));
+          var ed = mk("button", "sedit", "✎");
+          ed.type = "button";
+          ed.title = "Efekti düzenle";
+          ed.setAttribute("aria-label", "Efekti düzenle");
+          ed.addEventListener("click", function (e) { e.stopPropagation(); efdOpen(ef); });
+          fr.appendChild(ed);
+          card.appendChild(fr);
+        } else {
+          card.appendChild(mk("div", "fx-prev " + (PREVIEW_FX[name] ? "p-" + name : "p-generic")));
+          card.appendChild(mk("span", "fx-name", String(ef.label || name)));
+        }
         var pick = function () { send("start_effect", name, Number(speedEl.value)); };
         card.addEventListener("click", pick);
         card.addEventListener("keydown", function (e) {
@@ -3975,9 +4103,20 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
         });
         effectList.appendChild(card);
       });
+      var maxE = num(st.efekt_max, 10);
+      if (ozelSay < maxE) {
+        var yeni = mk("button", "glass lift fx fx-new");
+        yeni.type = "button";
+        yeni.title = "Kendi efektini oluştur";
+        yeni.appendChild(mk("b", "", "+"));
+        yeni.appendChild(mk("span", "", "Efekt oluştur"));
+        yeni.addEventListener("click", function (e) { e.stopPropagation(); efdOpen(null); });
+        effectList.appendChild(yeni);
+      }
+      effectList.classList.toggle("cok", effectList.children.length > 6);
     }
     var cur = st.effect && st.effect.name ? st.effect.name : null;
-    var cards = effectList.querySelectorAll(".fx");
+    var cards = effectList.querySelectorAll(".fx:not(.fx-new)");
     for (var i = 0; i < cards.length; i++) {
       cards[i].classList.toggle("sel", cur !== null && cards[i].dataset.name === cur);
     }
@@ -3990,7 +4129,7 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
       if (list[j].name === cur) found = list[j];
     }
     effectStatus.textContent = cur
-      ? "Çalışan efekt: " + (found ? (found.label || found.name) : cur)
+      ? "Çalışan efekt: " + (found ? (found.label || found.name) : cur === "__onizleme__" ? "Deneme (efekt düzenleyici)" : cur)
       : "Efekt kapalı.";
   }
 
@@ -4747,7 +4886,7 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
     ];
     sed.dongu = sc && sc.dongu === false ? false : true;
     sedAdEl.value = sc && !sc.builtin ? String(sc.name || "") : "";
-    sed.saved = sed.id ? sedSig() : "";
+    sed.saved = sedSig();   // dokunulmamis yeni sahne cikista sormaz
     document.getElementById("sedTitle").textContent = sed.id ? "Sahneyi düzenle" : "Yeni sahne";
     document.getElementById("sedDel").hidden = !sed.id;
     sed.onizliyor = false;
@@ -5012,6 +5151,306 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
     if (!sedAskEl.hidden) return;
     e.preventDefault();
     sedClose();
+  });
+
+
+  // ================= efekt duzenleyici =================
+  // Tanim: renkler, renk_hareket, renk_sure, titresim, parlak_hareket, parlak_sure, min_v, max_v (efekt.py ile ayni).
+  var EFD_RH = [["sabit", "Sabit"], ["akis", "Akış"], ["atlama", "Atlama"], ["gokkusagi", "Gökkuşağı"]];
+  var EFD_PH = [["sabit", "Sabit"], ["nefes", "Nefes"], ["nabiz", "Nabız"], ["flas", "Flaş"], ["titreme", "Titreme"], ["testere", "Testere"]];
+  var EFD_PRE = [
+    ["Nefes", { renkler: [0x8E44FF], renk_hareket: "sabit", renk_sure: 2, titresim: 0, parlak_hareket: "nefes", parlak_sure: 4, min_v: 8, max_v: 100 }],
+    ["Mum", { renkler: [0xFF7A1A], renk_hareket: "sabit", renk_sure: 2, titresim: 10, parlak_hareket: "titreme", parlak_sure: 0.2, min_v: 35, max_v: 100 }],
+    ["Polis", { renkler: [0xFF0000, 0x0033FF], renk_hareket: "atlama", renk_sure: 0.4, titresim: 0, parlak_hareket: "sabit", parlak_sure: 1, min_v: 100, max_v: 100 }],
+    ["Disko", { renkler: [0xFF0055, 0x00E5FF, 0xFFE600, 0x7A00FF], renk_hareket: "atlama", renk_sure: 0.5, titresim: 0, parlak_hareket: "flas", parlak_sure: 0.25, min_v: 0, max_v: 100 }],
+    ["Okyanus", { renkler: [0x0050FF, 0x00C8C8, 0x0090FF], renk_hareket: "akis", renk_sure: 4, titresim: 6, parlak_hareket: "nefes", parlak_sure: 6, min_v: 40, max_v: 90 }],
+    ["Kalp atışı", { renkler: [0xFF1030], renk_hareket: "sabit", renk_sure: 2, titresim: 0, parlak_hareket: "nabiz", parlak_sure: 0.9, min_v: 5, max_v: 100 }],
+    ["Gökkuşağı", { renkler: [0xFF0000], renk_hareket: "gokkusagi", renk_sure: 10, titresim: 0, parlak_hareket: "sabit", parlak_sure: 2, min_v: 100, max_v: 100 }]
+  ];
+  var efdEl = document.getElementById("efd");
+  var efdAdEl = document.getElementById("efdAd");
+  var efdColorEl = document.getElementById("efdColor");
+  var efdCanvas = document.getElementById("efdCanvas");
+  var efdAskEl = document.getElementById("efdAsk");
+  var efd = { open: false, id: null, e: null, live: true, saved: "", t0: 0, raf: 0, slot: -1, onizliyor: false, hist: [] };
+
+  function efdHash(n) { var x = Math.sin(n * 12.9898) * 43758.5453; return x - Math.floor(x); }
+  function efdNoise(x, tohum) {
+    var i = Math.floor(x), f = x - i, a = efdHash(i + tohum), b = efdHash(i + 1 + tohum), u = f * f * (3 - 2 * f);
+    return a + (b - a) * u;
+  }
+  function efdHs(c) { var x = rgbToHsv(sedRgb(c)); return [x.h, x.s * 100]; }
+  // efekt.py an() ile ayni: [h, s, v]
+  function efAn(e, t) {
+    var R = e.renkler.map(efdHs), n = R.length, rs = Math.max(0.1, num(e.renk_sure, 2)), h, s;
+    if (e.renk_hareket === "akis" && n > 1) {
+      var q = t / rs, i = ((Math.floor(q) % n) + n) % n, f = q - Math.floor(q);
+      var m = sedMix([R[i][0], R[i][1], 0], [R[(i + 1) % n][0], R[(i + 1) % n][1], 0], f * f * (3 - 2 * f));
+      h = m[0]; s = m[1];
+    } else if (e.renk_hareket === "atlama" && n > 1) {
+      var j = ((Math.floor(t / rs) % n) + n) % n; h = R[j][0]; s = R[j][1];
+    } else if (e.renk_hareket === "gokkusagi") {
+      h = (R[0][0] + 360 * t / rs) % 360; s = R[0][1] >= 10 ? R[0][1] : 100;
+    } else { h = R[0][0]; s = R[0][1]; }
+    if (num(e.titresim, 0) > 0) h = ((h + e.titresim * (2 * efdNoise(t / 0.35, 17) - 1)) % 360 + 360) % 360;
+    var ps = Math.max(0.05, num(e.parlak_sure, 2)), p = ((t / ps) % 1 + 1) % 1, k = 1;
+    switch (e.parlak_hareket) {
+      case "nefes": k = 0.5 - 0.5 * Math.cos(2 * Math.PI * p); break;
+      case "nabiz": k = p < 0.12 ? p / 0.12 : Math.pow(1 - (p - 0.12) / 0.88, 2.2); break;
+      case "flas": k = p < 0.5 ? 1 : 0; break;
+      case "titreme": k = efdNoise(t / ps, 3); break;
+      case "testere": k = p; break;
+    }
+    var lo = Math.min(num(e.min_v, 10), num(e.max_v, 100)), hi = Math.max(num(e.min_v, 10), num(e.max_v, 100));
+    return [h, s, lo + (hi - lo) * k];
+  }
+  function efdSig() { return JSON.stringify([efdAdEl.value.trim(), efd.e]); }
+  function efdDirty() { return efdSig() !== efd.saved; }
+  function efdCopy(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function efdOpen(ef) {
+    if (efd.open) return;
+    if (!api) { toast("Bağlantı bekleniyor…", true); return; }
+    efd.open = true;
+    efd.id = ef && ef.ozel ? String(ef.name).slice(5) : null;
+    efd.e = ef && ef.tanim ? efdCopy(ef.tanim) : efdCopy(EFD_PRE[0][1]);
+    efdAdEl.value = ef && ef.ozel ? String(ef.label || "") : "";
+    efd.saved = efdSig();
+    document.getElementById("efdTitle").textContent = efd.id ? "Efekti düzenle" : "Yeni efekt";
+    document.getElementById("efdDel").hidden = !efd.id;
+    efd.onizliyor = false;
+    efd.hist = [];
+    efdEl.hidden = false;
+    document.body.classList.add("efd-on");
+    efdRender();
+    efdRestart(false);
+    if (!efd.id) efdAdEl.focus(); else document.getElementById("efdBack").focus();
+    if (!efd.raf) efd.raf = requestAnimationFrame(efdTick);
+  }
+  async function efdCloseNow() {
+    efd.open = false;
+    efdAskEl.hidden = true;
+    efdEl.hidden = true;
+    document.body.classList.remove("efd-on");
+    cancelThrottle("efdon");
+    if (efd.onizliyor) { efd.onizliyor = false; await send("efekt_onizle_bitir", true); }
+  }
+  function efdAsk(msg, btns) {
+    return new Promise(function (resolve) {
+      document.getElementById("efdAskMsg").textContent = msg;
+      var box = document.getElementById("efdAskBtns");
+      box.textContent = "";
+      btns.forEach(function (b) {
+        var e = mk("button", "lab-btn" + (b.cls ? " " + b.cls : ""), b.ad);
+        e.type = "button";
+        e.addEventListener("click", function () { efdAskEl.hidden = true; resolve(b.id); });
+        box.appendChild(e);
+      });
+      efdAskEl.hidden = false;
+      box.lastChild.focus();
+    });
+  }
+  async function efdClose() {
+    if (!efd.open || !efdAskEl.hidden) return;
+    if (efdDirty()) {
+      var r = await efdAsk("Kaydedilmemiş değişiklikler var. Ne yapılsın?", [
+        { id: "iptal", ad: "Vazgeç" }, { id: "at", ad: "Kaydetmeden çık", cls: "danger" }, { id: "kaydet", ad: "Kaydet ve çık", cls: "pri" }]);
+      if (r === "iptal") return;
+      if (r === "kaydet" && !(await efdSave())) return;
+    }
+    await efdCloseNow();
+  }
+  async function efdSave() {
+    var ad = efdAdEl.value.trim();
+    if (!ad) { toast("Efekte bir ad ver.", true); efdAdEl.focus(); return false; }
+    var st = await send("efekt_kaydet", efd.id, ad, efd.e);
+    if (!st || st.efekt_hata) { toast((st && st.efekt_hata) || "Efekt kaydedilemedi.", true); return false; }
+    efd.id = st.efekt_id;
+    efd.saved = efdSig();
+    document.getElementById("efdTitle").textContent = "Efekti düzenle";
+    document.getElementById("efdDel").hidden = false;
+    efdPaintTop();
+    if (efd.live) {   // kaydedilen efekt seritte calmaya devam eder (hiz 50 = duzenleyicideki hiz)
+      await send("start_effect", "ozel:" + efd.id, 50);
+      efd.onizliyor = false;
+      efd.t0 = performance.now() / 1000;
+    }
+    toast("“" + ad + "” kaydedildi.");
+    return true;
+  }
+  async function efdDelete() {
+    if (!efd.id) return;
+    var r = await efdAsk("“" + efdAdEl.value.trim() + "” silinsin mi? Bu geri alınamaz.", [
+      { id: "iptal", ad: "Vazgeç" }, { id: "sil", ad: "Sil", cls: "danger" }]);
+    if (r !== "sil") return;
+    await send("efekt_sil", efd.id);
+    efd.saved = efdSig();
+    efd.id = null;
+    await efdCloseNow();
+  }
+  function efdPush(bastan) {
+    if (!efd.open || !efd.live) return;
+    var go = function () {
+      if (!efd.open || !efd.live) return;
+      efd.onizliyor = true;
+      send("efekt_onizle", efd.e, !!bastan);
+    };
+    if (bastan) { cancelThrottle("efdon"); go(); }
+    else throttle("efdon", go, [], 150);
+  }
+  function efdRestart(yalnizEkran) {
+    efd.t0 = performance.now() / 1000;
+    efd.hist = [];
+    if (!yalnizEkran) efdPush(true);
+  }
+  function efdChanged() { efdPaint(); efdPush(false); }
+  function efdPaintTop() {
+    document.getElementById("efdLive").setAttribute("aria-pressed", efd.live ? "true" : "false");
+    document.getElementById("efdDemo").setAttribute("aria-pressed", efd.live ? "false" : "true");
+    document.getElementById("efdSave").textContent = efdDirty() ? "Kaydet •" : "Kaydet";
+    document.getElementById("efdInfo").textContent = efd.live ? "Şeritte oynuyor" : "Yalnız ekranda";
+  }
+  function efdSeg(el, opts, key) {
+    el.textContent = "";
+    opts.forEach(function (o) {
+      var b = mk("button", "", o[1]);
+      b.type = "button";
+      b.setAttribute("aria-pressed", efd.e[key] === o[0] ? "true" : "false");
+      b.addEventListener("click", function () { efd.e[key] = o[0]; efdRender(); efdPush(true); });
+      el.appendChild(b);
+    });
+  }
+  function efdSlider(id, key, fmt) {
+    var r = document.getElementById(id), v = document.getElementById(id + "V");
+    r.value = String(efd.e[key]);
+    r.style.setProperty("--fill", (((Number(r.value) - Number(r.min)) / (Number(r.max) - Number(r.min))) * 100).toFixed(1) + "%");
+    v.textContent = fmt(efd.e[key]);
+  }
+  function efdPaint() {
+    var e = efd.e;
+    efdSlider("efdRs", "renk_sure", function (x) { return sedFmt(x) + " sn"; });
+    efdSlider("efdTi", "titresim", function (x) { return Math.round(x) + "°"; });
+    efdSlider("efdPs", "parlak_sure", function (x) { return (Math.round(x * 100) / 100).toString().replace(".", ",") + " sn"; });
+    efdSlider("efdMin", "min_v", function (x) { return "%" + Math.round(x); });
+    efdSlider("efdMax", "max_v", function (x) { return "%" + Math.round(x); });
+    var tekRenk = e.renkler.length < 2 && e.renk_hareket !== "gokkusagi";
+    document.getElementById("efdRsF").classList.toggle("off", e.renk_hareket === "sabit" || tekRenk);
+    document.getElementById("efdRsL").textContent = e.renk_hareket === "gokkusagi" ? "Bir tur süresi" : "Bir renkte kalma";
+    document.getElementById("efdPsF").classList.toggle("off", e.parlak_hareket === "sabit");
+    document.getElementById("efdMinF").classList.toggle("off", e.parlak_hareket === "sabit");
+    efdPaintTop();
+  }
+  function efdRender() {
+    var e = efd.e, cs = document.getElementById("efdCs");
+    cs.textContent = "";
+    e.renkler.forEach(function (c, i) {
+      var b = mk("button", "lp-pal-c");
+      b.type = "button";
+      b.style.background = sedHex(c);
+      b.title = "Rengi değiştir";
+      b.setAttribute("aria-label", (i + 1) + ". renk: değiştir");
+      if (e.renkler.length > 1) {
+        var x = mk("b", "", "×");
+        x.title = "Sil";
+        x.addEventListener("click", function (ev) { ev.stopPropagation(); e.renkler.splice(i, 1); efdRender(); efdPush(false); });
+        b.appendChild(x);
+      }
+      b.addEventListener("click", function () {
+        efd.slot = i;
+        efdColorEl.value = sedHex(c);
+        try { if (efdColorEl.showPicker) efdColorEl.showPicker(); else efdColorEl.click(); } catch (err) { efdColorEl.click(); }
+      });
+      cs.appendChild(b);
+    });
+    if (e.renkler.length < 6) {
+      var add = mk("button", "lp-pal-add", "+");
+      add.type = "button";
+      add.title = "Renk ekle";
+      add.setAttribute("aria-label", "Renk ekle");
+      add.addEventListener("click", function () {
+        efd.slot = e.renkler.length;
+        efdColorEl.value = sedHex(labPalRand());
+        try { if (efdColorEl.showPicker) efdColorEl.showPicker(); else efdColorEl.click(); } catch (err) { efdColorEl.click(); }
+      });
+      cs.appendChild(add);
+    }
+    document.getElementById("efdCnt").textContent = e.renkler.length + " / 6";
+    efdSeg(document.getElementById("efdRh"), EFD_RH, "renk_hareket");
+    efdSeg(document.getElementById("efdPh"), EFD_PH, "parlak_hareket");
+    efdPaint();
+  }
+  function efdTick() {
+    efd.raf = 0;
+    if (!efd.open) return;
+    var now = performance.now() / 1000, t = now - efd.t0;
+    var r = efAn(efd.e, t);
+    var col = cssRgb(r[0], r[1], r[2]);
+    var sw = document.getElementById("efdSwatch");
+    sw.style.background = col;
+    sw.style.setProperty("--sedc", col);
+    efd.hist.push([now, col]);
+    while (efd.hist.length && now - efd.hist[0][0] > 6) efd.hist.shift();
+    var dpr = window.devicePixelRatio || 1, w = Math.max(1, Math.round(efdCanvas.clientWidth * dpr)), h = Math.max(1, Math.round(efdCanvas.clientHeight * dpr));
+    if (efdCanvas.width !== w) efdCanvas.width = w;
+    if (efdCanvas.height !== h) efdCanvas.height = h;
+    var g = efdCanvas.getContext("2d");
+    g.clearRect(0, 0, w, h);
+    for (var i = 0; i < efd.hist.length; i++) {
+      var x0 = w - ((now - efd.hist[i][0]) / 6) * w;
+      var x1 = i + 1 < efd.hist.length ? w - ((now - efd.hist[i + 1][0]) / 6) * w : w;
+      g.fillStyle = efd.hist[i][1];
+      g.fillRect(Math.floor(x0), 0, Math.ceil(x1 - x0) + 1, h);
+    }
+    efd.raf = requestAnimationFrame(efdTick);
+  }
+  efdColorEl.addEventListener("input", function () {
+    var c = parseInt(efdColorEl.value.slice(1), 16);
+    if (!Number.isFinite(c)) return;
+    if (efd.slot >= efd.e.renkler.length) { if (efd.e.renkler.length >= 6) return; efd.e.renkler.push(c); efd.slot = efd.e.renkler.length - 1; efdRender(); }
+    else { efd.e.renkler[efd.slot] = c; var b = document.querySelectorAll("#efdCs .lp-pal-c")[efd.slot]; if (b) b.style.background = efdColorEl.value; }
+    efdChanged();
+  });
+  [["efdRs", "renk_sure"], ["efdTi", "titresim"], ["efdPs", "parlak_sure"], ["efdMin", "min_v"], ["efdMax", "max_v"]].forEach(function (p) {
+    document.getElementById(p[0]).addEventListener("input", function (ev) { efd.e[p[1]] = Number(ev.target.value); efdChanged(); });
+  });
+  (function () {
+    var box = document.getElementById("efdPre");
+    EFD_PRE.forEach(function (p) {
+      var b = mk("button", "", p[0]);
+      b.type = "button";
+      b.title = p[0] + " ayarlarıyla başla (ad değişmez)";
+      b.addEventListener("click", function () {
+        efd.e = efdCopy(p[1]);
+        if (!efdAdEl.value.trim() && !efd.id) efdAdEl.value = p[0] + " (benim)";
+        efdRender();
+        efdRestart(false);
+      });
+      box.appendChild(b);
+    });
+  })();
+  document.getElementById("efdBack").addEventListener("click", efdClose);
+  document.getElementById("efdSave").addEventListener("click", efdSave);
+  document.getElementById("efdDel").addEventListener("click", efdDelete);
+  document.getElementById("efdRestart").addEventListener("click", function () { efdRestart(false); });
+  document.getElementById("efdLive").addEventListener("click", function () {
+    if (efd.live) return;
+    efd.live = true;
+    efdPaintTop();
+    efdRestart(false);
+  });
+  document.getElementById("efdDemo").addEventListener("click", async function () {
+    if (!efd.live) return;
+    efd.live = false;
+    efdPaintTop();
+    cancelThrottle("efdon");
+    if (efd.onizliyor) { efd.onizliyor = false; await send("efekt_onizle_bitir", true); }
+  });
+  efdAdEl.addEventListener("input", efdPaintTop);
+  efdAdEl.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); efdSave(); } });
+  document.addEventListener("keydown", function (e) {
+    if (!efd.open || e.key !== "Escape" || !efdAskEl.hidden) return;
+    e.preventDefault();
+    efdClose();
   });
 
   // ---- olaylar: sahneler ----
