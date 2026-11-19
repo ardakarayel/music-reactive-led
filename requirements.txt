@@ -1,0 +1,9 @@
+numpy>=2.0
+pillow>=10.0
+pywebview>=5.0
+pystray>=0.19
+keyboard>=0.13
+SoundCard>=0.4.3
+tinytuya>=1.13
+winrt-Windows.Media.Control>=2.0
+winrt-Windows.Foundation>=2.0

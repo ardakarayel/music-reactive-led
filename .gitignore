@@ -1,0 +1,29 @@
+# --- secrets / device data: NEVER commit ---
+config.json
+tinytuya.json
+devices.json
+snapshot.json
+tuya-raw.json
+*.local.json
+
+# --- local state ---
+ayarlar.json
+scenes.json
+disari/
+yedek/
+
+# --- python ---
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# --- os / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- old versions (history lives in git) ---
+web/index-v*.html
+ALGORITMA-v2-eski.md
