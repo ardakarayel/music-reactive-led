@@ -14,6 +14,7 @@ import uuid
 from device import MockDevice, TuyaDevice
 from effects import EFFECT_NAMES, EFFECTS, Engine, hsv_to_rgb, render
 from music import Music
+import sahne as sahne_mod
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
@@ -89,11 +90,20 @@ def _sahneleri_yukle(yol):
         if not isinstance(s, dict) or not isinstance(s.get("id"), str) or s["id"] in YERLESIK_IDLER:
             continue
         try:
-            temiz.append({"id": s["id"], "name": str(s["name"])[:SAHNE_AD_MAX],
-                          "h": float(s["h"]), "s": float(s["s"]), "v": float(s["v"])})
+            adimlar = sahne_mod.adimlar_temizle(s.get("adimlar"))
+            if not adimlar:   # eski bicim: tek renk (h, s, v)
+                adimlar = [sahne_mod.hsv_adim(s["h"], s["s"], s["v"])]
+            temiz.append(_sahne_kaydi(s["id"], s["name"], adimlar, bool(s.get("dongu", True))))
         except (KeyError, TypeError, ValueError):
             continue
     return temiz
+
+
+def _sahne_kaydi(sid, ad, adimlar, dongu):
+    """Kullanici sahnesi: adimlar + dongu; h, s, v ilk adimdan (kart onizlemesi ve eski arayuz icin)."""
+    h, s, v = sahne_mod.renk_hsv(adimlar[0]["renk"], adimlar[0]["v"])
+    return {"id": sid, "name": str(ad)[:SAHNE_AD_MAX], "adimlar": adimlar, "dongu": bool(dongu),
+            "h": float(round(h)), "s": float(round(s)), "v": float(round(v))}
 
 
 def _sahneleri_yaz(yol, liste):
@@ -126,6 +136,8 @@ class Api:
         self._timer_token = None
         self._timer_end = None
         self._scenes = _sahneleri_yukle(scenes_path)
+        self._sahne = None           # calan cok adimli sahne: {"id", "adimlar", "dongu", "t0"}
+        self._onizleme_onceki = None  # sahne duzenleyici onizlemesinden once durum (geri donmek icin)
         if device is None:
             device, self._uyari = _cihaz_yukle(config_path)
         else:
@@ -193,6 +205,13 @@ class Api:
             style = self._music_style
         if mode == "effect" and effect:
             return render(effect, t, speed, h, s, v), 0.0
+        if mode == "scene":
+            sc = self._sahne
+            an = sahne_mod.an(sc["adimlar"], sc["dongu"], t - sc["t0"]) if sc else None
+            if an is None:
+                return hsv_to_rgb(h, s, v), 0.0
+            # ana parlaklik surgusu sahnenin parlakligini oranla kisar (sahne acilinca %100)
+            return hsv_to_rgb(an[0], an[1], an[2] * v / 100.0), 0.0
         if mode == "music":
             if style in V2_STILLER:
                 return self._render_v2(h, s, v)
@@ -306,8 +325,10 @@ class Api:
                     kalan = None
             eff = {"name": self._effect, "speed": int(round(self._effect_speed))} if self._effect else None
             kullanici = [{"id": s["id"], "name": s["name"], "builtin": False,
-                          "h": int(round(s["h"])), "s": int(round(s["s"])), "v": int(round(s["v"]))}
+                          "h": int(round(s["h"])), "s": int(round(s["s"])), "v": int(round(s["v"])),
+                          "adimlar": [dict(a) for a in s["adimlar"]], "dongu": s["dongu"]}
                          for s in self._scenes]
+            sahne_aktif = self._sahne["id"] if (self._mode == "scene" and self._sahne) else None
             durum = {
                 "power": self._power,
                 "mode": self._mode,
@@ -318,6 +339,7 @@ class Api:
                 "music_sens": int(round(self._music_sens)),
                 "music_style": self._music_style,
                 "timer_remaining": kalan,
+                "sahne_aktif": sahne_aktif,
             }
             vokal_agirlik, yogunluk, gecikme_ms = self._vokal_agirlik, self._yogunluk, self._gecikme_ms
         m = self._music
@@ -342,6 +364,8 @@ class Api:
                       "parca": self._medya.parca() if self._medya is not None else None},
             "timer_remaining": durum["timer_remaining"],
             "scenes": [dict(s, builtin=True) for s in YERLESIK] + kullanici,
+            "sahne_aktif": durum.get("sahne_aktif"),
+            "sahne_onizleme": self._onizleme_onceki is not None,
             "effects": [dict(e) for e in EFFECTS],
             "send_hz": self._send_hz,
             "lab_demo": self._demo,
@@ -415,12 +439,104 @@ class Api:
         if sc is None:
             return self.get_state()
         self._music.stop()
+        self._onizleme_onceki = None
+        adimlar = sc.get("adimlar") or []
+        if len(adimlar) >= 2:
+            self._sahne_oynat(sid, adimlar, sc.get("dongu", True))
+            return self.get_state()
+        if adimlar:
+            h, s, v = sahne_mod.renk_hsv(adimlar[0]["renk"], adimlar[0]["v"])
+        else:
+            h, s, v = sc["h"], sc["s"], sc["v"]
 
         def f():
             self._mode = "colour"
             self._effect = None
-            self._h, self._s, self._v = float(sc["h"]), float(sc["s"]), float(sc["v"])
+            self._sahne = None
+            self._h, self._s, self._v = float(h), float(s), max(1.0, float(v))
         self._guncelle(f, power=True)
+        return self.get_state()
+
+    def _sahne_oynat(self, sid, adimlar, dongu):
+        def f():
+            self._mode = "scene"
+            self._effect = None
+            self._sahne = {"id": sid, "adimlar": adimlar, "dongu": bool(dongu), "t0": time.monotonic()}
+            self._v = 100.0
+        self._guncelle(f, power=True)
+
+    # ----- sahne duzenleyici -----
+
+    def sahne_kaydet(self, sid, ad, adimlar, dongu=True):
+        """Yeni sahne (sid bos/None) ya da var olani gunceller. Donus: durum + "sahne_id" (hata: "sahne_hata")."""
+        ad = str(ad or "").strip()[:SAHNE_AD_MAX]
+        temiz = sahne_mod.adimlar_temizle(adimlar)
+        if not ad or not temiz:
+            durum = self.get_state()
+            durum["sahne_hata"] = "Ad ve en az bir adım gerekli."
+            return durum
+        if isinstance(sid, str) and sid in YERLESIK_IDLER:
+            sid = None
+        with self._scene_lock:
+            with self._lock:
+                yeni_id = sid if isinstance(sid, str) and any(s["id"] == sid for s in self._scenes) else uuid.uuid4().hex[:8]
+                kayit = _sahne_kaydi(yeni_id, ad, temiz, dongu)
+                self._scenes = [kayit if s["id"] == yeni_id else s for s in self._scenes]
+                if not any(s["id"] == yeni_id for s in self._scenes):
+                    self._scenes.append(kayit)
+                liste = [dict(s) for s in self._scenes]
+                if self._sahne and self._sahne["id"] == yeni_id:
+                    self._sahne = dict(self._sahne, adimlar=temiz, dongu=bool(dongu))
+            self._sahne_kaydet(liste)
+        durum = self.get_state()
+        durum["sahne_id"] = yeni_id
+        return durum
+
+    def sahne_onizle(self, adimlar, dongu=True, bastan=False):
+        """Duzenleyicide canli deneme: adimlar seritte (Demo acikken yalniz ekranda) oynar.
+        Ilk cagrida onceki durum saklanir; sahne_onizle_bitir(True) ona doner."""
+        temiz = sahne_mod.adimlar_temizle(adimlar)
+        if not temiz:
+            return self.get_state()
+        if self._onizleme_onceki is None:
+            with self._lock:
+                self._onizleme_onceki = {"mode": self._mode, "h": self._h, "s": self._s, "v": self._v,
+                                         "effect": self._effect, "sahne": self._sahne, "power": self._power,
+                                         "muzik": self._mode == "music"}
+            self._music.stop()
+        with self._lock:
+            ayni = (self._mode == "scene" and self._sahne and self._sahne["id"] == "__onizleme__"
+                    and not bastan)
+            t0 = self._sahne["t0"] if ayni else time.monotonic()
+
+        def f():
+            self._mode = "scene"
+            self._effect = None
+            self._sahne = {"id": "__onizleme__", "adimlar": temiz, "dongu": bool(dongu), "t0": t0}
+            self._v = 100.0
+        self._guncelle(f, power=True)
+        return self.get_state()
+
+    def sahne_onizle_bitir(self, geri_don=True):
+        """Onizlemeyi bitirir. geri_don: duzenleyiciden onceki renge/efekte doner (muzik acikti ise rengine)."""
+        once = self._onizleme_onceki
+        self._onizleme_onceki = None
+        if once is None:
+            return self.get_state()
+        if not geri_don:
+            return self.get_state()
+
+        def f():
+            mode = once["mode"]
+            if mode == "music":
+                mode = "colour"
+            if mode == "scene" and not once["sahne"]:
+                mode = "colour"
+            self._mode = mode
+            self._h, self._s, self._v = once["h"], once["s"], once["v"]
+            self._effect = once["effect"] if mode == "effect" else None
+            self._sahne = once["sahne"] if mode == "scene" else None
+        self._guncelle(f, power=once["power"])
         return self.get_state()
 
     def save_scene(self, name):
@@ -429,9 +545,8 @@ class Api:
             return self.get_state()
         with self._scene_lock:
             with self._lock:
-                self._scenes.append({"id": uuid.uuid4().hex[:8], "name": ad,
-                                     "h": float(round(self._h)), "s": float(round(self._s)),
-                                     "v": float(round(self._v))})
+                self._scenes.append(_sahne_kaydi(uuid.uuid4().hex[:8], ad,
+                                                 [sahne_mod.hsv_adim(self._h, self._s, self._v)], True))
                 liste = list(self._scenes)
             self._sahne_kaydet(liste)
         return self.get_state()
@@ -442,6 +557,10 @@ class Api:
                 kalan = [s for s in self._scenes if s["id"] != sid]
                 degisti = len(kalan) != len(self._scenes)
                 self._scenes = kalan
+                if self._mode == "scene" and self._sahne and self._sahne["id"] == sid:
+                    self._mode = "colour"
+                    self._sahne = None
+                    self._engine.force()
             if degisti:
                 self._sahne_kaydet(kalan)
         return self.get_state()

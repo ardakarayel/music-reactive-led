@@ -9,6 +9,7 @@ A Windows desktop app that listens to whatever your PC is playing (Spotify, YouT
 ## Features
 
 - **Manual control:** color wheel, brightness, quick colors, power, timer.
+- **Scenes:** built-in moods plus your own **scene editor**: a color flow of up to 12 steps (color, brightness, smooth or instant transition, hold time), looped or played once, with live preview on the strip or on screen only.
 - **Effects:** breathe, rainbow, candle, aurora, police, strobe.
 - **Music modes**
   - **Basic:** *Pulse* (brightness follows the beat) and *Spectrum* (color follows the bass/treble balance).
@@ -98,7 +99,7 @@ Closing the window quits the app. Starting it again while it is open brings the 
 
 ## Roadmap / ideas for contributors
 
-- Create your own **scenes and effects** from the UI (planned next).
+- Create your own **effects** from the UI (in progress).
 - **OtoPilot**: a mode that moves its own sliders as the song changes (design in `ALGORITMA.md`).
 - English UI, multi-strip sync, macOS/Linux audio capture.
 

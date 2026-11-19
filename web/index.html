@@ -1524,7 +1524,9 @@ input[type="range"]::-moz-range-thumb {
   #pg-scenes:not(.big) .scene { min-height: 0; padding: 6px; gap: 5px; border-radius: 16px; }
   #pg-scenes:not(.big) .scene-prev { flex: none; min-height: 0; height: clamp(44px, 9vh, 80px); }
   #pg-scenes:not(.big) .scene .tag,
-  #pg-scenes:not(.big) .scene .sdel { display: none; }
+  #pg-scenes:not(.big) .scene .sdel,
+  #pg-scenes:not(.big) .scene .sedit { display: none; }
+  #pg-scenes:not(.big) .scene-new b { font-size: 20px; }
   #pg-scenes:not(.big) .sname { font-size: 12px; }
   #pg-scenes.big .scene { min-height: 0; padding: 10px; gap: 8px; }
   #pg-scenes.big .scene-prev { min-height: clamp(64px, 14vh, 110px); }
@@ -1764,6 +1766,69 @@ input[type="range"]::-moz-range-thumb {
 
 /* Tam ekran sayfa */
 body.lab-on .app { display: none; }
+
+/* ---- sahne duzenleyici (Arda, 2026-11-19): adim adim renk akisi. Kaydirma yok: en cok 12 adim. ---- */
+body.sed-on .app { display: none; }
+body.sed-on .toast { bottom: 84px; }
+.sed .lab-top { gap: 12px; }
+.sed-ad { flex: 0 1 260px; min-width: 120px; height: 34px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.25); color: var(--text); font: inherit; font-size: 14px; }
+.sed-ad:focus { outline: none; border-color: rgba(255, 255, 255, 0.4); }
+.sed-sp { flex: 1 1 auto; }
+.sed-prev { flex: none; display: grid; grid-template-columns: 120px 1fr auto; align-items: center; gap: 18px; padding: 14px 18px; }
+.sed-swatch { width: 120px; height: 64px; border-radius: 16px; background: #000; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 0 34px -6px var(--sedc, transparent); }
+.sed-tl { position: relative; height: 30px; border-radius: 10px; overflow: hidden; background: rgba(0, 0, 0, 0.35); }
+.sed-bar { position: absolute; inset: 0; display: flex; }
+.sed-bar i { display: block; height: 100%; min-width: 2px; }
+.sed-head { position: absolute; top: -2px; bottom: -2px; width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 6px rgba(255, 255, 255, 0.9); left: 0; }
+.sed-meta { display: flex; align-items: center; gap: 12px; font-size: 12.5px; color: var(--text-2); white-space: nowrap; }
+.sed-steps { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; overflow: hidden; }
+.sed-row, .sed-hdr { display: grid; grid-template-columns: 26px 48px minmax(140px, 1fr) 150px 140px 140px 128px; align-items: center; gap: 14px; }
+.sed-hdr { font-size: 11.5px; color: var(--text-3, var(--text-2)); padding: 0 8px 2px; }
+.sed-row { min-height: 38px; padding: 3px 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.03); transition: background 0.2s ease; }
+.sed-row.on { background: rgba(255, 255, 255, 0.09); box-shadow: inset 2px 0 0 #fff; }
+.sed-no { font-size: 12px; color: var(--text-2); text-align: center; }
+.sed-c { width: 48px; height: 28px; border: 0; padding: 0; border-radius: 8px; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25); }
+.sed-v { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.sed-v input { flex: 1 1 auto; min-width: 0; }
+.sed-v span { flex: none; width: 38px; text-align: right; font-size: 12.5px; color: var(--text); }
+.sed-row .lab-seg button { padding: 0 10px; height: 26px; font-size: 12px; }
+.sed-n { display: flex; align-items: center; gap: 6px; }
+.sed-n input { width: 70px; height: 28px; padding: 0 8px; border-radius: 9px; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(0, 0, 0, 0.25);
+  color: var(--text); font: inherit; font-size: 13px; }
+.sed-n input:disabled { opacity: 0.35; }
+.sed-n small { font-size: 12px; color: var(--text-2); }
+.sed-act { display: flex; gap: 4px; justify-content: flex-end; }
+.sed-act button { width: 28px; height: 28px; padding: 0; border-radius: 8px; border: 0; background: rgba(255, 255, 255, 0.06); color: var(--text-2);
+  font: inherit; font-size: 13px; cursor: pointer; }
+.sed-act button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); color: var(--text); }
+.sed-act button:disabled { opacity: 0.3; cursor: default; }
+.sed-act .x:hover:not(:disabled) { background: rgba(251, 113, 133, 0.25); color: #fecdd3; }
+.sed .sed-add { width: auto; white-space: nowrap; align-self: flex-start; height: 32px; padding: 0 14px; font-size: 13px; margin: 4px 0 0 8px; }
+.sed-ask { position: absolute; inset: 0; z-index: 7; display: grid; place-items: center; background: rgba(2, 3, 8, 0.58); }
+.sed-ask > div { display: flex; flex-direction: column; gap: 14px; max-width: 440px; padding: 22px; }
+.sed-ask p { margin: 0; color: var(--text); font-size: 14px; line-height: 1.45; }
+.sed-ask .sed-ask-b { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+@media (max-height: 820px) {
+  .sed-row { min-height: 32px; padding: 2px 8px; }
+  .sed-steps { gap: 3px; padding: 8px 14px; }
+  .sed-prev { padding: 10px 16px; }
+  .sed-swatch { height: 48px; }
+}
+@media (max-width: 1180px) {
+  .sed-row, .sed-hdr { grid-template-columns: 22px 42px minmax(90px, 1fr) 132px 118px 118px 124px; gap: 8px; }
+  .sed-n input { width: 56px; }
+}
+/* sahne kartlari: yeni sahne kutusu ve duzenle dugmesi */
+.scene-new { align-items: center; justify-content: center; border: 1px dashed rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.03); color: var(--text-2); }
+.scene-new b { font-size: 26px; font-weight: 300; line-height: 1; }
+.scene-new span { font-size: 12px; }
+.scene-new:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.45); }
+.sedit { flex: none; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.07); color: var(--text-2);
+  font-size: 12px; line-height: 24px; cursor: pointer; }
+.sedit:hover { background: rgba(255, 255, 255, 0.16); color: var(--text); }
+.scene-akis { position: absolute; right: 8px; bottom: 8px; font-size: 10.5px; padding: 1px 6px; border-radius: 999px; background: rgba(0, 0, 0, 0.5); color: #fff; }
+.scene-prev { position: relative; }
 body.lab-on .toast { bottom: 84px; }
 .lab {
   position: fixed;
@@ -2513,6 +2578,42 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
     </button>
   </nav>
 </main>
+
+<div id="sed" class="lab sed" role="dialog" aria-label="Sahne düzenleyici" hidden>
+  <div class="lab-top">
+    <button id="sedBack" class="lab-back" type="button">← Geri</button>
+    <div id="sedTitle" class="lab-title">Yeni sahne</div>
+    <input id="sedAd" class="sed-ad" type="text" maxlength="40" placeholder="Sahne adı" aria-label="Sahne adı" autocomplete="off">
+    <span class="sed-sp"></span>
+    <div class="lab-seg" role="group" aria-label="Tekrar">
+      <button id="sedLoop" type="button" aria-pressed="true" title="Son adımdan sonra başa döner">Döngü</button>
+      <button id="sedOnce" type="button" aria-pressed="false" title="Bir kez oynar, son renkte kalır">Bir kez</button>
+    </div>
+    <div class="lab-seg" role="group" aria-label="Çıkış">
+      <button id="sedLive" type="button" aria-pressed="true" title="Düzenlerken şeritte oynar">Canlı</button>
+      <button id="sedDemo" type="button" aria-pressed="false" title="Yalnız ekranda oynar, şerit değişmez">Demo</button>
+    </div>
+    <button id="sedDel" class="lab-btn danger" type="button">Sil</button>
+    <button id="sedSave" class="lab-btn pri" type="button">Kaydet</button>
+  </div>
+  <div class="glass sed-prev">
+    <div id="sedSwatch" class="sed-swatch" aria-hidden="true"></div>
+    <div class="sed-tl" title="Sahnenin bir turu"><div id="sedBar" class="sed-bar"></div><div id="sedHead" class="sed-head"></div></div>
+    <div class="sed-meta"><span id="sedInfo"></span><button id="sedRestart" class="lab-btn" type="button">↺ Baştan</button></div>
+  </div>
+  <div class="glass sed-steps">
+    <div class="sed-hdr" aria-hidden="true"><span>#</span><span>Renk</span><span>Parlaklık</span><span>Geçiş</span><span>Geçiş süresi</span><span>Bekle</span><span></span></div>
+    <div id="sedList" role="list" aria-label="Adımlar"></div>
+    <button id="sedAdd" class="lp-pal-add sed-add" type="button">+ Adım ekle</button>
+  </div>
+  <input id="sedColor" class="lp-pal-in" type="color" tabindex="-1" aria-hidden="true">
+  <div id="sedAsk" class="sed-ask" hidden>
+    <div class="glass" role="alertdialog" aria-modal="true">
+      <p id="sedAskMsg"></p>
+      <div id="sedAskBtns" class="sed-ask-b"></div>
+    </div>
+  </div>
+</div>
 
 <div id="lab" class="lab" role="dialog" aria-label="Laboratuvar" hidden>
   <div class="lab-top">
@@ -3308,6 +3409,18 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
         st.scenes.push({ id: "u-" + (seq++), name: n.slice(0, 30), h: st.h, s: st.s, v: st.v, builtin: false });
         return snap();
       },
+      sahne_kaydet: async function (id, ad, adimlar, dongu) {
+        var n = String(ad || "").trim();
+        var o = snap();
+        if (!n || !Array.isArray(adimlar) || !adimlar.length) { o.sahne_hata = "Ad ve en az bir adım gerekli."; return o; }
+        var s = id ? findScene(id) : null;
+        if (!s || s.builtin) { s = { id: "u-" + (seq++), builtin: false }; st.scenes.push(s); }
+        s.name = n.slice(0, 40); s.adimlar = JSON.parse(JSON.stringify(adimlar)); s.dongu = !!dongu;
+        s.h = 0; s.s = 80; s.v = adimlar[0].v;
+        o = snap(); o.sahne_id = s.id; return o;
+      },
+      sahne_onizle: async function () { st.power = true; st.mode = "scene"; st.sahne_onizleme = true; return snap(); },
+      sahne_onizle_bitir: async function () { st.mode = "colour"; st.sahne_onizleme = false; return snap(); },
       delete_scene: async function (id) {
         var s = findScene(id);
         if (!s) throw new Error("Sahne yok");
@@ -3767,10 +3880,13 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
     if (sig === scenesSig) return;
     scenesSig = sig;
     sceneList.textContent = "";
-    if (!list.length) {
-      sceneList.appendChild(mk("p", "empty", "Henüz sahne yok."));
-      return;
-    }
+    var yeni = mk("button", "glass lift scene scene-new");
+    yeni.type = "button";
+    yeni.title = "Kendi sahneni oluştur";
+    yeni.appendChild(mk("b", "", "+"));
+    yeni.appendChild(mk("span", "", "Sahne oluştur"));
+    yeni.addEventListener("click", function (e) { e.stopPropagation(); sedOpen(null); });
+    sceneList.appendChild(yeni);
     list.forEach(function (s) {
       var card = mk("div", "glass lift scene");
       card.setAttribute("role", "button");
@@ -3778,15 +3894,33 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
       card.title = String(s.name);
       var h = num(s.h, 0), sa = num(s.s, 0), v = Math.max(30, num(s.v, 50));
       var prev = mk("div", "scene-prev");
-      prev.style.setProperty("--a", cssRgb(h, sa, v));
-      prev.style.setProperty("--b", cssRgb(h + 35, sa, v * 0.8));
-      prev.style.setProperty("--c", cssRgb(h - 35, sa, v * 0.7));
+      var ad = Array.isArray(s.adimlar) ? s.adimlar : [];
+      if (ad.length >= 2) {
+        var cc = ad.slice(0, 3).map(function (a) { return sedCss(a.renk, Math.max(35, num(a.v, 60))); });
+        prev.style.setProperty("--a", cc[0]);
+        prev.style.setProperty("--b", cc[1]);
+        prev.style.setProperty("--c", cc[2] || cc[0]);
+        prev.appendChild(mk("span", "scene-akis", ad.length + " adım"));
+      } else {
+        prev.style.setProperty("--a", cssRgb(h, sa, v));
+        prev.style.setProperty("--b", cssRgb(h + 35, sa, v * 0.8));
+        prev.style.setProperty("--c", cssRgb(h - 35, sa, v * 0.7));
+      }
       card.appendChild(prev);
       var row = mk("div", "scene-row");
       row.appendChild(mk("span", "sname", String(s.name)));
       if (s.builtin) {
         row.appendChild(mk("span", "tag", "Hazır"));
       } else {
+        var ed = mk("button", "sedit", "✎");
+        ed.type = "button";
+        ed.title = "Sahneyi düzenle";
+        ed.setAttribute("aria-label", "Sahneyi düzenle");
+        ed.addEventListener("click", function (e) {
+          e.stopPropagation();
+          sedOpen(s);
+        });
+        row.appendChild(ed);
         var del = mk("button", "sdel", "×");
         del.type = "button";
         del.title = "Sahneyi sil";
@@ -4373,7 +4507,7 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
   function fitScenes() {
     var more = sceneList.querySelector(".scene-more");
     if (!more) return;
-    var tiles = sceneList.querySelectorAll(".scene:not(.scene-more)");
+    var tiles = sceneList.querySelectorAll(".scene:not(.scene-more):not(.scene-new)");
     var n = tiles.length;
     var k = n;
     function show() {
@@ -4534,6 +4668,350 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
     local.v = Number(brightEl.value);
     renderLocal();
     send("set_brightness", Math.round(local.v));
+  });
+
+
+  // ================= sahne duzenleyici =================
+  // Sahne = adimlar (renk 0xRRGGBB, v 0-100, gecis sn, tip yumusak|ani, bekle sn) + dongu. Arka uc: sahne.py.
+  var SED_MAX = 12;
+  var sedEl = document.getElementById("sed");
+  var sedListEl = document.getElementById("sedList");
+  var sedAdEl = document.getElementById("sedAd");
+  var sedColorEl = document.getElementById("sedColor");
+  var sedSwatchEl = document.getElementById("sedSwatch");
+  var sedBarEl = document.getElementById("sedBar");
+  var sedHeadEl = document.getElementById("sedHead");
+  var sedInfoEl = document.getElementById("sedInfo");
+  var sedAskEl = document.getElementById("sedAsk");
+  var sed = { open: false, id: null, adimlar: [], dongu: true, live: true, saved: "", t0: 0, raf: 0, slot: -1, rows: [], onizliyor: false };
+
+  function sedHex(c) { return "#" + ("000000" + Math.max(0, Math.round(num(c, 0))).toString(16)).slice(-6); }
+  function sedRgb(c) { c = Math.round(num(c, 0)); return [(c >> 16) & 255, (c >> 8) & 255, c & 255]; }
+  function sedHsv(a) {   // -> [h 0-360, s 0-100, v 0-100]; rengin kendi parlakligi yok sayilir
+    var x = rgbToHsv(sedRgb(a.renk));
+    return [x.h, x.s * 100, num(a.v, 70)];
+  }
+  function sedCss(renk, v) { var x = rgbToHsv(sedRgb(renk)); return cssRgb(x.h, x.s * 100, v); }
+  function sedGecis(a, i) { return (i === 0 && !sed.dongu) || a.tip === "ani" ? 0 : num(a.gecis, 0); }
+  function sedSure() {
+    var t = 0;
+    sed.adimlar.forEach(function (a, i) { t += sedGecis(a, i) + num(a.bekle, 0); });
+    return t;
+  }
+  function sedMix(a, b, k) {
+    var dh = ((b[0] - a[0] + 540) % 360) - 180, ha = a[0];
+    if (a[1] < 1) { ha = b[0]; dh = 0; } else if (b[1] < 1) dh = 0;
+    return [((ha + dh * k) % 360 + 360) % 360, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
+  }
+  // t saniyedeki [h, s, v] ve aktif adim (sahne.py an() ile ayni)
+  function sedAn(t) {
+    var A = sed.adimlar, n = A.length;
+    if (!n) return { hsv: [0, 0, 0], i: -1 };
+    var hsv = A.map(sedHsv);
+    var tur = sedSure();
+    if (n === 1 || tur <= 1e-6) return { hsv: hsv[0], i: 0 };
+    if (sed.dongu) t = t % tur;
+    else if (t >= tur) return { hsv: hsv[n - 1], i: n - 1 };
+    for (var i = 0; i < n; i++) {
+      var g = sedGecis(A[i], i);
+      if (t < g) return { hsv: sedMix(hsv[(i - 1 + n) % n], hsv[i], t / g), i: i };
+      t -= g;
+      if (t < num(A[i].bekle, 0)) return { hsv: hsv[i], i: i };
+      t -= num(A[i].bekle, 0);
+    }
+    return { hsv: hsv[n - 1], i: n - 1 };
+  }
+  function sedFmt(x) { return (Math.round(num(x, 0) * 10) / 10).toString().replace(".", ","); }
+  function sedSig() { return JSON.stringify([sedAdEl.value.trim(), sed.dongu, sed.adimlar]); }
+  function sedDirty() { return sedSig() !== sed.saved; }
+  function sedOut() {
+    return sed.adimlar.map(function (a) {
+      return { renk: Math.round(num(a.renk, 0)), v: num(a.v, 70), bekle: num(a.bekle, 0), gecis: num(a.gecis, 0), tip: a.tip === "ani" ? "ani" : "yumusak" };
+    });
+  }
+  function sedYeniAdim(onceki) {
+    var hsv = onceki ? sedHsv(onceki) : [270, 80, 70];
+    var c = hsvToRgb((hsv[0] + 120) % 360, 0.85, 1);
+    return { renk: (c[0] << 16) | (c[1] << 8) | c[2], v: onceki ? num(onceki.v, 70) : 70, bekle: 2, gecis: 1, tip: "yumusak" };
+  }
+
+  async function sedOpen(sc) {
+    if (sed.open) return;
+    if (!api) { toast("Bağlantı bekleniyor…", true); return; }
+    sed.open = true;
+    sed.id = sc && !sc.builtin ? sc.id : null;
+    var ad = sc && Array.isArray(sc.adimlar) && sc.adimlar.length ? sc.adimlar : null;
+    sed.adimlar = ad ? JSON.parse(JSON.stringify(ad)) : [
+      { renk: 0x8E44FF, v: 70, bekle: 2, gecis: 1, tip: "yumusak" },
+      { renk: 0x1E90FF, v: 70, bekle: 2, gecis: 1, tip: "yumusak" }
+    ];
+    sed.dongu = sc && sc.dongu === false ? false : true;
+    sedAdEl.value = sc && !sc.builtin ? String(sc.name || "") : "";
+    sed.saved = sed.id ? sedSig() : "";
+    document.getElementById("sedTitle").textContent = sed.id ? "Sahneyi düzenle" : "Yeni sahne";
+    document.getElementById("sedDel").hidden = !sed.id;
+    sed.onizliyor = false;
+    sedEl.hidden = false;
+    document.body.classList.add("sed-on");
+    sedRender();
+    sedRestart();
+    if (!sed.id) sedAdEl.focus(); else document.getElementById("sedBack").focus();
+    if (!sed.raf) sed.raf = requestAnimationFrame(sedTick);
+  }
+  async function sedCloseNow() {
+    sed.open = false;
+    sedAskEl.hidden = true;
+    sedEl.hidden = true;
+    document.body.classList.remove("sed-on");
+    cancelThrottle("sedon");
+    if (sed.onizliyor) { sed.onizliyor = false; await send("sahne_onizle_bitir", true); }
+  }
+  function sedAsk(msg, btns) {
+    return new Promise(function (resolve) {
+      document.getElementById("sedAskMsg").textContent = msg;
+      var box = document.getElementById("sedAskBtns");
+      box.textContent = "";
+      btns.forEach(function (b) {
+        var e = mk("button", "lab-btn" + (b.cls ? " " + b.cls : ""), b.ad);
+        e.type = "button";
+        e.addEventListener("click", function () { sedAskEl.hidden = true; resolve(b.id); });
+        box.appendChild(e);
+      });
+      sedAskEl.hidden = false;
+      box.lastChild.focus();
+    });
+  }
+  async function sedClose() {
+    if (!sed.open || !sedAskEl.hidden) return;
+    if (sedDirty()) {
+      var r = await sedAsk("Kaydedilmemiş değişiklikler var. Ne yapılsın?", [
+        { id: "iptal", ad: "Vazgeç" }, { id: "at", ad: "Kaydetmeden çık", cls: "danger" }, { id: "kaydet", ad: "Kaydet ve çık", cls: "pri" }]);
+      if (r === "iptal") return;
+      if (r === "kaydet" && !(await sedSave())) return;
+    }
+    await sedCloseNow();
+  }
+  async function sedSave() {
+    var ad = sedAdEl.value.trim();
+    if (!ad) { toast("Sahneye bir ad ver.", true); sedAdEl.focus(); return false; }
+    if (!sed.adimlar.length) { toast("En az bir adım ekle.", true); return false; }
+    var st = await send("sahne_kaydet", sed.id, ad, sedOut(), sed.dongu);
+    if (!st || st.sahne_hata) { toast((st && st.sahne_hata) || "Sahne kaydedilemedi.", true); return false; }
+    sed.id = st.sahne_id;
+    sed.saved = sedSig();
+    document.getElementById("sedTitle").textContent = "Sahneyi düzenle";
+    document.getElementById("sedDel").hidden = false;
+    sedPaintTop();
+    if (sed.live) {   // kaydedilen sahne seritte calmaya devam eder (onizleme biter, eski renge donulmez)
+      await send("apply_scene", sed.id);
+      sed.onizliyor = false;
+      sedRestart(true);
+    }
+    toast("“" + ad + "” kaydedildi.");
+    return true;
+  }
+  async function sedDelete() {
+    if (!sed.id) return;
+    var r = await sedAsk("“" + sedAdEl.value.trim() + "” silinsin mi? Bu geri alınamaz.", [
+      { id: "iptal", ad: "Vazgeç" }, { id: "sil", ad: "Sil", cls: "danger" }]);
+    if (r !== "sil") return;
+    await send("delete_scene", sed.id);
+    sed.saved = sedSig();
+    sed.id = null;
+    await sedCloseNow();
+  }
+  // Canli: degisiklik seride gider (throttle). bastan: sahneyi ilk adimdan baslatir.
+  function sedPush(bastan) {
+    if (!sed.open || !sed.live || !sed.adimlar.length) return;
+    var go = function () {
+      if (!sed.open || !sed.live) return;
+      sed.onizliyor = true;
+      send("sahne_onizle", sedOut(), sed.dongu, !!bastan);
+    };
+    if (bastan) { cancelThrottle("sedon"); go(); }
+    else throttle("sedon", go, [], 150);
+  }
+  function sedRestart(yalnizEkran) {
+    sed.t0 = performance.now() / 1000;
+    if (!yalnizEkran) sedPush(true);
+  }
+  function sedChanged(bastan) {
+    sedPaintBar();
+    sedPaintTop();
+    sedPush(bastan);
+  }
+  function sedPaintTop() {
+    document.getElementById("sedLoop").setAttribute("aria-pressed", sed.dongu ? "true" : "false");
+    document.getElementById("sedOnce").setAttribute("aria-pressed", sed.dongu ? "false" : "true");
+    document.getElementById("sedLive").setAttribute("aria-pressed", sed.live ? "true" : "false");
+    document.getElementById("sedDemo").setAttribute("aria-pressed", sed.live ? "false" : "true");
+    document.getElementById("sedSave").textContent = sedDirty() ? "Kaydet •" : "Kaydet";
+    var tur = sedSure();
+    sedInfoEl.textContent = sed.adimlar.length + " adım · bir tur " + sedFmt(tur) + " sn" + (sed.live ? "" : " · şeride gitmiyor");
+    document.getElementById("sedAdd").hidden = sed.adimlar.length >= SED_MAX;
+  }
+  function sedPaintBar() {
+    sedBarEl.textContent = "";
+    var tur = sedSure() || 1;
+    sed.adimlar.forEach(function (a, i) {
+      var g = sedGecis(a, i), b = num(a.bekle, 0);
+      var onceki = sed.adimlar[(i - 1 + sed.adimlar.length) % sed.adimlar.length];
+      if (g > 0) {
+        var e = mk("i");
+        e.style.flex = String(g / tur);
+        e.style.background = "linear-gradient(90deg, " + sedCss(onceki.renk, Math.max(25, num(onceki.v, 60))) + ", " + sedCss(a.renk, Math.max(25, num(a.v, 60))) + ")";
+        sedBarEl.appendChild(e);
+      }
+      if (b > 0) {
+        var e2 = mk("i");
+        e2.style.flex = String(b / tur);
+        e2.style.background = sedCss(a.renk, Math.max(25, num(a.v, 60)));
+        sedBarEl.appendChild(e2);
+      }
+    });
+  }
+  function sedRender() {
+    sedListEl.textContent = "";
+    sed.rows = [];
+    var n = sed.adimlar.length;
+    sed.adimlar.forEach(function (a, i) {
+      var row = mk("div", "sed-row");
+      row.setAttribute("role", "listitem");
+      row.appendChild(mk("span", "sed-no", String(i + 1)));
+      var c = mk("button", "sed-c");
+      c.type = "button";
+      c.title = "Rengi seç";
+      c.setAttribute("aria-label", (i + 1) + ". adımın rengi");
+      c.style.background = sedHex(a.renk);
+      c.addEventListener("click", function () {
+        sed.slot = i;
+        sedColorEl.value = sedHex(a.renk);
+        try { if (sedColorEl.showPicker) sedColorEl.showPicker(); else sedColorEl.click(); } catch (err) { sedColorEl.click(); }
+      });
+      row.appendChild(c);
+      var vb = mk("div", "sed-v");
+      var rg = document.createElement("input");
+      rg.type = "range"; rg.min = "0"; rg.max = "100"; rg.step = "1"; rg.value = String(num(a.v, 70));
+      rg.setAttribute("aria-label", (i + 1) + ". adımın parlaklığı");
+      var vt = mk("span", "", "%" + Math.round(num(a.v, 70)));
+      var pf = function () { rg.style.setProperty("--fill", rg.value + "%"); };
+      pf();
+      rg.addEventListener("input", function () { a.v = Number(rg.value); vt.textContent = "%" + rg.value; pf(); sedChanged(false); });
+      vb.appendChild(rg); vb.appendChild(vt);
+      row.appendChild(vb);
+      var seg = mk("div", "lab-seg");
+      seg.setAttribute("role", "group");
+      seg.setAttribute("aria-label", (i + 1) + ". adıma geçiş");
+      var gIn;
+      [["yumusak", "Yumuşak"], ["ani", "Ani"]].forEach(function (o) {
+        var b = mk("button", "", o[1]);
+        b.type = "button";
+        b.setAttribute("aria-pressed", (a.tip === "ani" ? "ani" : "yumusak") === o[0] ? "true" : "false");
+        b.addEventListener("click", function () {
+          a.tip = o[0];
+          seg.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+          gIn.disabled = a.tip === "ani";
+          sedChanged(false);
+        });
+        seg.appendChild(b);
+      });
+      row.appendChild(seg);
+      function numBox(key, lo, hi, label, disabled) {
+        var w = mk("div", "sed-n");
+        var inp = mk("input");
+        inp.type = "number"; inp.min = String(lo); inp.max = String(hi); inp.step = "0.1";
+        inp.value = String(num(a[key], 0));
+        inp.disabled = !!disabled;
+        inp.setAttribute("aria-label", (i + 1) + ". adım: " + label);
+        var commit = function () {
+          var v = Number(String(inp.value).replace(",", "."));
+          if (!Number.isFinite(v)) v = num(a[key], 0);
+          v = clamp(Math.round(v * 10) / 10, lo, hi);
+          a[key] = v;
+          sedChanged(false);
+        };
+        inp.addEventListener("input", commit);
+        inp.addEventListener("change", function () { commit(); inp.value = String(a[key]); });
+        w.appendChild(inp);
+        w.appendChild(mk("small", "", "sn"));
+        row.appendChild(w);
+        return inp;
+      }
+      gIn = numBox("gecis", 0, 60, "geçiş süresi", a.tip === "ani");
+      numBox("bekle", 0, 600, "bekleme süresi");
+      var act = mk("div", "sed-act");
+      function ab(txt, title, dis, fn, cls) {
+        var b = mk("button", cls || "", txt);
+        b.type = "button"; b.title = title; b.setAttribute("aria-label", (i + 1) + ". adım: " + title);
+        b.disabled = !!dis;
+        b.addEventListener("click", fn);
+        act.appendChild(b);
+      }
+      ab("↑", "Yukarı taşı", i === 0, function () { var t = sed.adimlar[i - 1]; sed.adimlar[i - 1] = a; sed.adimlar[i] = t; sedRender(); sedChanged(true); });
+      ab("↓", "Aşağı taşı", i === n - 1, function () { var t = sed.adimlar[i + 1]; sed.adimlar[i + 1] = a; sed.adimlar[i] = t; sedRender(); sedChanged(true); });
+      ab("⧉", "Kopyala", n >= SED_MAX, function () { sed.adimlar.splice(i + 1, 0, JSON.parse(JSON.stringify(a))); sedRender(); sedChanged(false); });
+      ab("×", "Sil", n <= 1, function () { sed.adimlar.splice(i, 1); sedRender(); sedChanged(true); }, "x");
+      row.appendChild(act);
+      sedListEl.appendChild(row);
+      sed.rows.push(row);
+    });
+    sedPaintBar();
+    sedPaintTop();
+  }
+  function sedTick() {
+    sed.raf = 0;
+    if (!sed.open) return;
+    var tur = sedSure();
+    var t = performance.now() / 1000 - sed.t0;
+    var r = sedAn(t);
+    var col = cssRgb(r.hsv[0], r.hsv[1], r.hsv[2]);
+    sedSwatchEl.style.background = col;
+    sedSwatchEl.style.setProperty("--sedc", col);
+    var faz = tur > 0 ? (sed.dongu ? (t % tur) : Math.min(t, tur)) / tur : 0;
+    sedHeadEl.style.left = (faz * 100).toFixed(2) + "%";
+    sed.rows.forEach(function (row, i) { row.classList.toggle("on", i === r.i); });
+    sed.raf = requestAnimationFrame(sedTick);
+  }
+  sedColorEl.addEventListener("input", function () {
+    var a = sed.adimlar[sed.slot];
+    if (!a) return;
+    a.renk = parseInt(sedColorEl.value.slice(1), 16);
+    var btn = sed.rows[sed.slot] && sed.rows[sed.slot].querySelector(".sed-c");
+    if (btn) btn.style.background = sedColorEl.value;
+    sedChanged(false);
+  });
+  document.getElementById("sedAdd").addEventListener("click", function () {
+    if (sed.adimlar.length >= SED_MAX) return;
+    sed.adimlar.push(sedYeniAdim(sed.adimlar[sed.adimlar.length - 1]));
+    sedRender();
+    sedChanged(false);
+  });
+  document.getElementById("sedBack").addEventListener("click", sedClose);
+  document.getElementById("sedSave").addEventListener("click", sedSave);
+  document.getElementById("sedDel").addEventListener("click", sedDelete);
+  document.getElementById("sedRestart").addEventListener("click", function () { sedRestart(false); });
+  document.getElementById("sedLoop").addEventListener("click", function () { sed.dongu = true; sedChanged(true); sedRestart(true); });
+  document.getElementById("sedOnce").addEventListener("click", function () { sed.dongu = false; sedChanged(true); sedRestart(true); });
+  document.getElementById("sedLive").addEventListener("click", function () {
+    if (sed.live) return;
+    sed.live = true;
+    sedPaintTop();
+    sedRestart(false);
+  });
+  document.getElementById("sedDemo").addEventListener("click", async function () {
+    if (!sed.live) return;
+    sed.live = false;
+    sedPaintTop();
+    cancelThrottle("sedon");
+    if (sed.onizliyor) { sed.onizliyor = false; await send("sahne_onizle_bitir", true); }
+  });
+  sedAdEl.addEventListener("input", sedPaintTop);
+  sedAdEl.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); sedSave(); } });
+  document.addEventListener("keydown", function (e) {
+    if (!sed.open || e.key !== "Escape") return;
+    if (!sedAskEl.hidden) return;
+    e.preventDefault();
+    sedClose();
   });
 
   // ---- olaylar: sahneler ----
