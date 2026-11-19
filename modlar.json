@@ -5,7 +5,7 @@
     "sablon": "dionysos",
     "params": {
       "taban": 0.0,
-      "tavan": 0.45,
+      "tavan": 0.38,
       "dusus": 0.8,
       "asagi_dim": 0.3,
       "asagi_dim_sn": 0.05,
@@ -16,8 +16,18 @@
       "renk_ara_sn": 2.5,
       "uzun_sessiz_sn": 0.8,
       "esik_renk_v": 0.15,
-      "esik_renk_olasilik": 50,
+      "esik_renk_olasilik": 50.0,
       "esik_renk_sure_sn": 0.15,
+      "palet_acik": 0,
+      "palet_sira": 0,
+      "palet_1": 16723285.0,
+      "palet_2": 9323775.0,
+      "palet_3": 2003199.0,
+      "palet_4": 16747546.0,
+      "palet_5": -1,
+      "palet_6": -1,
+      "palet_7": -1,
+      "palet_8": -1,
       "renk_serbest": 1,
       "renk_en_az_fark": 90.0,
       "renk_tau_sn": 0.45,
@@ -83,7 +93,7 @@
       "send_hz": 19
     },
     "olusturma": "2026-11-19T18:02:56+03:00",
-    "guncelleme": "2026-11-19T19:05:54+03:00"
+    "guncelleme": "2026-11-19T23:02:07+03:00"
   },
   {
     "id": "e6c7cd2e",

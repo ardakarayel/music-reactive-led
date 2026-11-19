@@ -66,6 +66,7 @@ class Music:
         # ve API thread'i (ayarla) arasinda korur; _lock'tan bagimsizdir.
         self._boru = None
         self._boru_lock = threading.Lock()
+        self.harita_fn = None        # kutuphane.ornek (controller atar)
         self._v2_kare = None          # (h 0-360, s 0-1, v 0-1)
         self._v2_ozet = None          # {"bpm", "guven", "bolum", "vokal"}
         self._v2_viz = None           # Dionysos: gorsellestirme verisi (Boru.son_viz)
@@ -165,6 +166,7 @@ class Music:
         if v2.get("lab_params") and hasattr(b.isik, "p"):
             b.ayarla(params=v2["lab_params"])
         b.taban_ton = v2.get("taban_ton")
+        b.harita_fn = self.harita_fn   # kutuphane (controller verir); None ise canli tahmin
         b.sifirla()   # ses basinda temiz durum
         return b
 

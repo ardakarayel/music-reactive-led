@@ -6,8 +6,12 @@ None / False doner, uygulama dusmez.
 """
 import asyncio
 import threading
+import time
+from datetime import datetime, timezone
 
-YOKLAMA_SN = 2.0
+# 1 sn: sarki degisimi ve seek daha cabuk yakalanir (kutuphane kaydi seek'te iptal eder);
+# GSMTC okumasi ucuz.
+YOKLAMA_SN = 1.0
 
 
 def _sinif():
@@ -27,7 +31,9 @@ class Medya:
         threading.Thread(target=self._calis, daemon=True).start()
 
     def parca(self):
-        """{"ad", "sanatci", "kaynak", "caliyor"} ya da None (oturum yok)."""
+        """{"ad", "sanatci", "kaynak", "caliyor", "uygulama", "sure", "konum", "konum_t"} ya da None.
+
+        sure/konum sn (float|None); konum_t: konumun olculdugu an (time.monotonic)."""
         with self._lock:
             return dict(self._parca) if self._parca else None
 
@@ -83,8 +89,27 @@ class Medya:
             ad = (p.title or "").strip()
             if not ad:
                 return None
+            uyg = s.source_app_user_model_id or ""
+            sure = konum = konum_t = None
+            try:
+                z = s.get_timeline_properties()
+                if z is not None:
+                    sure = (z.end_time - z.start_time).total_seconds()
+                    konum = z.position.total_seconds()
+                    if sure <= 0:
+                        sure = None
+                    gun = z.last_updated_time
+                    if konum is not None and gun is not None:
+                        if gun.tzinfo is None:
+                            gun = gun.replace(tzinfo=timezone.utc)
+                        yas = (datetime.now(timezone.utc) - gun).total_seconds()
+                        yas = max(0.0, yas)
+                        konum_t = time.monotonic() - yas
+            except Exception:
+                sure = konum = konum_t = None
             return {"ad": ad, "sanatci": (p.artist or "").strip(),
-                    "kaynak": s.source_app_user_model_id or "", "caliyor": caliyor}
+                    "kaynak": uyg, "caliyor": caliyor,
+                    "uygulama": uyg, "sure": sure, "konum": konum, "konum_t": konum_t}
 
         dongu = asyncio.new_event_loop()
         while not self._dur.is_set():
@@ -97,3 +122,17 @@ class Medya:
             self._uyandir.wait(YOKLAMA_SN)
             self._uyandir.clear()
         dongu.close()
+
+
+def simdiki_konum(parca):
+    """Calarken konum + gecen sure, degilse konum (sn). Bilinmiyorsa None."""
+    try:
+        if not parca or parca.get("konum") is None:
+            return None
+        k = float(parca["konum"])
+        t = parca.get("konum_t")
+        if parca.get("caliyor") and t is not None:
+            k += max(0.0, time.monotonic() - t)
+        return k
+    except Exception:
+        return None

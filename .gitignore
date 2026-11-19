@@ -28,3 +28,7 @@ Thumbs.db
 # --- old versions (history lives in git) ---
 web/index-v*.html
 ALGORITMA-v2-eski.md
+
+# --- kütüphane: ayırma ortamı ve şarkı verisi ---
+.venv-ayir/
+kutuphane/

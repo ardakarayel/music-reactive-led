@@ -762,6 +762,9 @@ class DionysosMotoru:
         # ---- paylar (sqrt guc): bas, davul, melodi, vokal ----
         p_bas = p_bant[0] + p_bant[1]
         p_dav = max(_sonlu(oz.vurmali, 0.0) - p_bas, 0.0)
+        hb = getattr(oz, "harita_bas", None)
+        if hb is not None:   # kutuphane haritasi: alt bantta yalniz bas gitar varken bas payi tam, yalniz kick varken dusuk
+            p_bas *= 0.3 + 0.7 * _kisi(float(hb), 0.0, 1.0)
         p_mel_t = max(_sonlu(oz.melodik, 0.0), 0.0)
         p_vok = p_mel_t * (0.2 + 0.6 * guc) if var else 0.0
         p_mel = max(p_mel_t - p_vok, 0.0)

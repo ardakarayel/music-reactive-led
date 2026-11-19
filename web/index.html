@@ -1763,8 +1763,9 @@ input[type="range"]::-moz-range-thumb {
 }
 .ozel-btn.more { border-style: dashed; }
 @media (min-width: 900px) {
-  .lab-open { position: absolute; top: 14px; right: 58px; z-index: 3; margin: 0; }
-  #pg-music.big .lab-open { right: 18px; }
+  .m-topbtns { position: absolute; top: 14px; right: 58px; z-index: 3; display: flex; gap: 8px; }
+  .m-topbtns .lab-open { margin: 0; }
+  #pg-music.big .m-topbtns { right: 18px; }
   #pg-music:not(.big) .ozel-tag { display: none; }
   #pg-music:not(.big) .ozel-seg { margin-top: 6px; gap: 5px; }
   #pg-music:not(.big) .ozel-btn { height: 26px; font-size: 11px; padding: 0 9px; }
@@ -1776,6 +1777,42 @@ body.lab-on .app { display: none; }
 /* ---- sahne duzenleyici (Arda, 2026-11-19): adim adim renk akisi. Kaydirma yok: en cok 12 adim. ---- */
 
 /* ---- efekt duzenleyici (Arda, 2026-11-19): renk hareketi + parlaklik hareketi. Kaydirma yok. ---- */
+
+/* ---- kutuphane sayfasi (Arda, 2026-11-19). Kaydirma yok: sayfalama. ---- */
+body.kut-on .app { display: none; }
+body.kut-on .toast { bottom: 84px; }
+.kut-dot { width: 7px; height: 7px; border-radius: 50%; background: #ff4d6d; box-shadow: 0 0 8px #ff4d6d; margin-left: 2px; animation: kutPuls 1.4s ease-in-out infinite; }
+@keyframes kutPuls { 50% { opacity: 0.35; } }
+.kut-info { flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kut-kutu { padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.kut-kutu small { font-size: 11.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em; }
+.kut-kutu b { font-size: 18px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kut-kutu span { font-size: 12.5px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kut-kutu.on b { color: #9dffb0; }
+.kut-uyari { flex: none; margin: 0; padding: 10px 16px; border-radius: 14px; background: rgba(255, 196, 0, 0.12); border: 1px solid rgba(255, 196, 0, 0.35); font-size: 13px; color: #ffe08a; }
+.kut-list { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 10px 16px; overflow: hidden; }
+.kut-row, .kut-hdr { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.4fr) 70px 120px 170px 34px; align-items: center; gap: 14px; }
+.kut-hdr { font-size: 11.5px; color: var(--text-2); padding: 0 10px 6px; }
+.kut-row { height: 42px; padding: 0 10px; border-radius: 12px; }
+.kut-row:nth-child(odd) { background: rgba(255, 255, 255, 0.03); }
+.kut-row.calan { background: rgba(157, 255, 176, 0.09); box-shadow: inset 2px 0 0 #9dffb0; }
+.kut-row > span { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kut-row .ad { color: var(--text); font-weight: 500; }
+.kut-row .sn { color: var(--text-2); }
+.kut-d { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 3px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.07); color: var(--text-2); }
+.kut-d.hazir { background: rgba(157, 255, 176, 0.14); color: #b8ffc6; }
+.kut-d.hata { background: rgba(251, 113, 133, 0.16); color: #fecdd3; }
+.kut-d.isleniyor, .kut-d.kaydediliyor { background: rgba(120, 170, 255, 0.16); color: #cfe0ff; }
+.kut-sil { width: 30px; height: 30px; border: 0; border-radius: 9px; background: rgba(255, 255, 255, 0.06); color: var(--text-2); cursor: pointer; font-size: 14px; }
+.kut-sil:hover { background: rgba(251, 113, 133, 0.25); color: #fecdd3; }
+.kut-bos { margin: auto; text-align: center; color: var(--text-2); font-size: 14px; line-height: 1.6; max-width: 520px; }
+.kut-alt { flex: none; display: flex; align-items: center; gap: 10px; justify-content: flex-end; padding-top: 8px; font-size: 12.5px; color: var(--text-2); }
+.kut-ara { flex: 0 1 240px; height: 34px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(0, 0, 0, 0.25); color: var(--text); font: inherit; font-size: 13px; }
+@media (max-width: 1180px) {
+  .kut-row, .kut-hdr { grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) 56px 0 150px 34px; gap: 8px; }
+  .kut-row > .tr, .kut-hdr > .tr { display: none; }
+  .kut-info { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 body.efd-on .app { display: none; }
 body.efd-on .toast { bottom: 84px; }
 .efd .lab-top { gap: 12px; }
@@ -2465,7 +2502,7 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
       <button type="button" class="cb-back">← Geri</button>
       <button type="button" class="cb-zoom" aria-label="Büyüt" title="Büyüt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"></path><path d="M10 20H4v-6"></path><path d="M20 4l-7 7"></path><path d="M4 20l7-7"></path></svg></button>
       <div class="kicker dtitle">Müzik</div>
-      <button id="labOpen" type="button" class="lab-open" aria-label="Laboratuvarı aç" title="Laboratuvar: kendi müzik modunu tasarla"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6"></path><path d="M10 3v6.2L4.6 18.3A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.7-2.7L14 9.2V3"></path><path d="M7.5 15h9"></path></svg>Laboratuvar</button>
+      <div class="m-topbtns"><button id="kutOpen" type="button" class="lab-open" aria-label="Kütüphaneyi aç" title="Kütüphane: Spotify'da dinledikçe öğrenilen şarkılar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5"></path><path d="M9 19V5"></path><path d="M14 19l3-14 4 1-3 14z"></path></svg>Kütüphane<i id="kutDot" class="kut-dot" hidden></i></button><button id="labOpen" type="button" class="lab-open" aria-label="Laboratuvarı aç" title="Laboratuvar: kendi müzik modunu tasarla"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6"></path><path d="M10 3v6.2L4.6 18.3A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.7-2.7L14 9.2V3"></path><path d="M7.5 15h9"></path></svg>Laboratuvar</button></div>
       <div class="m-left">
         <div class="mhero">
           <button id="musicToggle" class="mbtn" type="button" aria-pressed="false" aria-label="Müzik modunu başlat">
@@ -2623,6 +2660,31 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
     </button>
   </nav>
 </main>
+
+<div id="kut" class="lab sed kut" role="dialog" aria-label="Kütüphane" hidden>
+  <div class="lab-top">
+    <button id="kutBack" class="lab-back" type="button">← Geri</button>
+    <div class="lab-title">Kütüphane<small id="kutAlt"></small></div>
+    <span class="sed-sp"></span>
+    <input id="kutAra" class="kut-ara" type="search" placeholder="Şarkı ya da sanatçı ara" aria-label="Kütüphanede ara" autocomplete="off">
+    <div class="lab-seg" role="group" aria-label="Öğrenme">
+      <button id="kutOgrAc" type="button" aria-pressed="true" title="Spotify'da baştan sona dinlenen yeni şarkılar kaydedilip öğrenilir">Öğrenme açık</button>
+      <button id="kutOgrKapa" type="button" aria-pressed="false" title="Yeni kayıt yapılmaz; öğrenilmiş şarkılar yine kullanılır">Kapalı</button>
+    </div>
+  </div>
+  <div class="kut-info">
+    <div class="glass kut-kutu"><small>Şarkı</small><b id="kutToplam">0</b><span id="kutBoyut"></span></div>
+    <div class="glass kut-kutu" id="kutKayitK"><small>Kayıt</small><b id="kutKayit">Beklemede</b><span id="kutKayitAlt">Spotify'da yeni bir şarkıyı baştan başlat</span></div>
+    <div class="glass kut-kutu"><small>Ayırma sırası</small><b id="kutKuyruk">0</b><span id="kutKuyrukAlt">Roformer · GPU</span></div>
+    <div class="glass kut-kutu" id="kutHaritaK"><small>Şu an</small><b id="kutHarita">Canlı analiz</b><span id="kutHaritaAlt"></span></div>
+  </div>
+  <p id="kutUyari" class="kut-uyari" hidden></p>
+  <div class="glass kut-list">
+    <div class="kut-hdr" aria-hidden="true"><span>Şarkı</span><span>Sanatçı</span><span>Süre</span><span class="tr">Eklendi</span><span>Durum</span><span></span></div>
+    <div id="kutRows"></div>
+    <div class="kut-alt"><span id="kutSayfa"></span><button id="kutOnce" class="lab-btn" type="button">‹</button><button id="kutSonra" class="lab-btn" type="button">›</button></div>
+  </div>
+</div>
 
 <div id="efd" class="lab sed efd" role="dialog" aria-label="Efekt düzenleyici" hidden>
   <div class="lab-top">
@@ -3526,6 +3588,19 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
       efekt_sil: async function (id) { st.effects = st.effects.filter(function (e) { return e.name !== "ozel:" + id; }); return snap(); },
       efekt_onizle: async function () { st.power = true; st.mode = "effect"; st.effect = { name: "__onizleme__", speed: 50 }; return snap(); },
       efekt_onizle_bitir: async function () { st.mode = "colour"; st.effect = null; return snap(); },
+      kutuphane_liste: async function () {
+        var o = snap();
+        o.kutuphane = { ogrenme: st.kutOgr !== false, kayit: { ad: "Öp", sanatci: "Tarkan", yuzde: 0.42 }, kuyruk: 1, calan: "tarkan__op__227",
+          harita_aktif: true, toplam: 3, boyut_mb: 0.3, ayir_hazir: true, harita_kullaniliyor: true };
+        o.kutuphane_liste = (st.kutListe = st.kutListe || [
+          { anahtar: "tarkan__op__227", ad: "Öp", sanatci: "Tarkan", sure: 227, eklenme: "2026-11-19T20:10:00", durum: "hazir", hata: null, boyut_kb: 120, ilerleme: null },
+          { anahtar: "sezen__x__201", ad: "Gidiyorum", sanatci: "Sezen Aksu", sure: 201, eklenme: "2026-11-19T20:20:00", durum: "isleniyor", hata: null, boyut_kb: 0, ilerleme: 0.55 },
+          { anahtar: "a__b__180", ad: "Uzun Bir Şarkı Adı Burada Deneme", sanatci: "Biri", sure: 180, eklenme: "2026-11-19T20:30:00", durum: "hata", hata: "CUDA out of memory", boyut_kb: 0, ilerleme: null }
+        ]);
+        return o;
+      },
+      kutuphane_sil: async function (a) { st.kutListe = (st.kutListe || []).filter(function (x) { return x.anahtar !== a; }); return this.kutuphane_liste(); },
+      kutuphane_ogrenme: async function (v) { st.kutOgr = !!v; return this.kutuphane_liste(); },
       sahne_onizle: async function () { st.power = true; st.mode = "scene"; st.sahne_onizleme = true; return snap(); },
       sahne_onizle_bitir: async function () { st.mode = "colour"; st.sahne_onizleme = false; return snap(); },
       delete_scene: async function (id) {
@@ -4368,6 +4443,7 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
     if (!pinned("bright")) local.v = num(st.v, local.v);
     renderLocal();
     renderScenes(st.scenes);
+    kutDot(st);
     renderEffects(st);
     renderMusic(st);
     syncTimer(st.timer_remaining);
@@ -5452,6 +5528,125 @@ body.lab-demo .ind-swatch { outline: 2px dashed rgba(255, 255, 255, 0.55); outli
     e.preventDefault();
     efdClose();
   });
+
+
+  // ================= kutuphane sayfasi =================
+  var kutEl = document.getElementById("kut");
+  var kut = { open: false, liste: [], durum: null, sayfa: 0, timer: 0, ara: "" };
+  var KUT_DURUM = { kaydediliyor: "Kaydediliyor", sirada: "Ayırma sırasında", isleniyor: "Ayrılıyor", hazir: "Hazır", hata: "Hata" };
+  function kutSure(s) { s = Math.round(num(s, 0)); return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
+  function kutTarih(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+  }
+  function kutDot(st) {   // Muzik kartindaki kucuk kayit isareti
+    var k = st && st.kutuphane;
+    var dot = document.getElementById("kutDot");
+    if (dot) dot.hidden = !(k && k.kayit);
+  }
+  async function kutYenile() {
+    if (!kut.open) return;
+    var st = await send("kutuphane_liste");
+    if (!st) return;
+    kut.liste = Array.isArray(st.kutuphane_liste) ? st.kutuphane_liste : [];
+    kut.durum = st.kutuphane || {};
+    kutCiz();
+  }
+  function kutSatirSayisi() {
+    var box = document.getElementById("kutRows");
+    var h = box.parentNode.clientHeight - 80;
+    return Math.max(3, Math.floor(h / 42));
+  }
+  function kutCiz() {
+    var d = kut.durum || {};
+    document.getElementById("kutOgrAc").setAttribute("aria-pressed", d.ogrenme !== false ? "true" : "false");
+    document.getElementById("kutOgrKapa").setAttribute("aria-pressed", d.ogrenme === false ? "true" : "false");
+    document.getElementById("kutToplam").textContent = String(num(d.toplam, kut.liste.length));
+    document.getElementById("kutBoyut").textContent = (Math.round(num(d.boyut_mb, 0) * 10) / 10).toString().replace(".", ",") + " MB · yalnız analiz, ses saklanmaz";
+    var kk = d.kayit;
+    document.getElementById("kutKayit").textContent = kk ? String(kk.ad || "Şarkı") : (d.ogrenme === false ? "Kapalı" : "Beklemede");
+    document.getElementById("kutKayitAlt").textContent = kk ? (String(kk.sanatci || "") + " · %" + Math.round(num(kk.yuzde, 0) * 100) + " dinlendi")
+      : (d.ogrenme === false ? "Yeni şarkı öğrenilmiyor" : "Spotify'da yeni bir şarkıyı baştan başlat");
+    document.getElementById("kutKayitK").classList.toggle("on", !!kk);
+    document.getElementById("kutKuyruk").textContent = String(num(d.kuyruk, 0));
+    var hk = !!d.harita_kullaniliyor, ha = !!d.harita_aktif;
+    document.getElementById("kutHarita").textContent = hk ? "Harita kullanılıyor" : ha ? "Harita hazır" : "Canlı analiz";
+    document.getElementById("kutHaritaAlt").textContent = hk ? "Vokal, kick/snare ve bas Roformer'dan"
+      : ha ? "Müzik modu açılınca kullanılır" : "Çalan şarkı kütüphanede yok";
+    document.getElementById("kutHaritaK").classList.toggle("on", hk);
+    var uy = document.getElementById("kutUyari");
+    var msg = d.yok ? ("Kütüphane çalışmıyor" + (d.hata ? ": " + d.hata : ".")) : d.ayir_hazir === false
+      ? "Ayırma ortamı hazır değil: kayıtlar sırada bekliyor, ortam kurulunca işlenecek." : "";
+    uy.textContent = msg;
+    uy.hidden = !msg;
+    var q = kut.ara.trim().toLocaleLowerCase("tr");
+    var L = kut.liste.filter(function (x) {
+      return !q || (String(x.ad) + " " + String(x.sanatci)).toLocaleLowerCase("tr").indexOf(q) >= 0;
+    });
+    var n = kutSatirSayisi(), sayfaS = Math.max(1, Math.ceil(L.length / n));
+    kut.sayfa = clamp(kut.sayfa, 0, sayfaS - 1);
+    var box = document.getElementById("kutRows");
+    box.textContent = "";
+    if (!L.length) {
+      var p = mk("p", "kut-bos", q ? "Aramaya uyan şarkı yok." :
+        "Henüz şarkı yok. Panel açıkken Spotify'da bir şarkıyı baştan sona dinle; şarkı burada belirir, birkaç saniye içinde Roformer ile ayrılıp hazır olur. Bir daha çaldığında ışık onun haritasını kullanır.");
+      box.appendChild(p);
+    }
+    L.slice(kut.sayfa * n, kut.sayfa * n + n).forEach(function (x) {
+      var r = mk("div", "kut-row" + (d.calan && d.calan === x.anahtar ? " calan" : ""));
+      r.appendChild(mk("span", "ad", String(x.ad || "")));
+      r.appendChild(mk("span", "sn", String(x.sanatci || "")));
+      r.appendChild(mk("span", "sn", kutSure(x.sure)));
+      r.appendChild(mk("span", "sn tr", kutTarih(x.eklenme)));
+      var ds = mk("span");
+      var txt = KUT_DURUM[x.durum] || String(x.durum || "");
+      if ((x.durum === "isleniyor" || x.durum === "kaydediliyor") && x.ilerleme != null) txt += " %" + Math.round(num(x.ilerleme, 0) * 100);
+      var b = mk("span", "kut-d " + String(x.durum || ""), txt);
+      if (x.hata) b.title = String(x.hata);
+      ds.appendChild(b);
+      r.appendChild(ds);
+      var del = mk("button", "kut-sil", "×");
+      del.type = "button";
+      del.title = "Sil (şarkı sonra yeniden öğrenilebilir)";
+      del.setAttribute("aria-label", String(x.ad) + ": sil");
+      del.addEventListener("click", async function () {
+        var st = await send("kutuphane_sil", x.anahtar);
+        if (st) { kut.liste = st.kutuphane_liste || []; kut.durum = st.kutuphane || {}; kutCiz(); }
+      });
+      r.appendChild(del);
+      box.appendChild(r);
+    });
+    document.getElementById("kutSayfa").textContent = L.length > n ? (kut.sayfa + 1) + " / " + sayfaS : "";
+    document.getElementById("kutOnce").hidden = document.getElementById("kutSonra").hidden = L.length <= n;
+    document.getElementById("kutOnce").disabled = kut.sayfa <= 0;
+    document.getElementById("kutSonra").disabled = kut.sayfa >= sayfaS - 1;
+  }
+  function kutOpen() {
+    if (kut.open) return;
+    if (!api) { toast("Bağlantı bekleniyor…", true); return; }
+    kut.open = true;
+    kutEl.hidden = false;
+    document.body.classList.add("kut-on");
+    document.getElementById("kutBack").focus();
+    kutYenile();
+    kut.timer = setInterval(kutYenile, 2000);
+  }
+  function kutClose() {
+    kut.open = false;
+    clearInterval(kut.timer);
+    kutEl.hidden = true;
+    document.body.classList.remove("kut-on");
+  }
+  document.getElementById("kutOpen").addEventListener("click", function (e) { e.stopPropagation(); kutOpen(); });
+  document.getElementById("kutBack").addEventListener("click", kutClose);
+  document.getElementById("kutOgrAc").addEventListener("click", async function () { var st = await send("kutuphane_ogrenme", true); if (st) { kut.durum = st.kutuphane || {}; kutCiz(); } });
+  document.getElementById("kutOgrKapa").addEventListener("click", async function () { var st = await send("kutuphane_ogrenme", false); if (st) { kut.durum = st.kutuphane || {}; kutCiz(); } });
+  document.getElementById("kutAra").addEventListener("input", function (e) { kut.ara = e.target.value; kut.sayfa = 0; kutCiz(); });
+  document.getElementById("kutOnce").addEventListener("click", function () { kut.sayfa--; kutCiz(); });
+  document.getElementById("kutSonra").addEventListener("click", function () { kut.sayfa++; kutCiz(); });
+  window.addEventListener("resize", function () { if (kut.open) kutCiz(); });
+  document.addEventListener("keydown", function (e) { if (kut.open && e.key === "Escape") { e.preventDefault(); kutClose(); } });
 
   // ---- olaylar: sahneler ----
   addScene.addEventListener("click", function () {

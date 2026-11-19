@@ -175,6 +175,20 @@ class Api:
             self._medya = Medya()
         except Exception:
             self._medya = None
+        # Kutuphane: Spotify'da tam dinlenen sarki kaydedilir, Roformer ile ayrilir, harita sonra kullanilir
+        self._kutuphane = None
+        if self._medya is not None and config_path == CONFIG_PATH:
+            try:
+                from kutuphane import Kutuphane
+                self._kutuphane = Kutuphane(
+                    os.path.join(BASE_DIR, "kutuphane"), self._medya,
+                    os.path.join(BASE_DIR, ".venv-ayir", "Scripts", "python.exe"),
+                    os.path.join(BASE_DIR, "ayir", "ayir.py"))
+                self._kutuphane.baslat()
+                self._music.harita_fn = self._kutuphane.ornek
+            except Exception as e:
+                self._kutuphane = None
+                self._kutuphane_hata = f"Kütüphane açılamadı ({type(e).__name__}: {e})"
         self._send_hz = 16
         self._spec_shift = 12.0     # spektrum: vurus basina ton kaymasi (derece)
         self._spec_smooth = 0.4     # spektrum: ton yumusakligi (sn)
@@ -287,6 +301,39 @@ class Api:
                 return True   # Demo modu: renk yalniz ekranda, seride gitmez (Arda, 2026-11-19)
             return self._device.set_rgb(*rgb)
 
+    # ----- kutuphane -----
+
+    def _kutuphane_durum(self):
+        k = getattr(self, "_kutuphane", None)
+        if k is None:
+            return {"yok": True, "hata": getattr(self, "_kutuphane_hata", "")}
+        try:
+            d = dict(k.durum())
+        except Exception as e:
+            return {"yok": True, "hata": type(e).__name__}
+        b = self._music._boru if self._music.active else None
+        d["harita_kullaniliyor"] = bool(b is not None and getattr(b, "harita_aktif", False))
+        return d
+
+    def kutuphane_liste(self):
+        """Durum + sarki listesi (Kutuphane sayfasi bunu ~2 sn'de bir ister)."""
+        k = getattr(self, "_kutuphane", None)
+        durum = self.get_state()
+        durum["kutuphane_liste"] = k.liste() if k is not None else []
+        return durum
+
+    def kutuphane_sil(self, anahtar):
+        k = getattr(self, "_kutuphane", None)
+        if k is not None and isinstance(anahtar, str):
+            k.sil(anahtar)
+        return self.kutuphane_liste()
+
+    def kutuphane_ogrenme(self, acik):
+        k = getattr(self, "_kutuphane", None)
+        if k is not None:
+            k.ogrenme = bool(acik)
+        return self.kutuphane_liste()
+
     def medya_komut(self, ad):
         """Calan uygulamaya (Spotify, YouTube...) komut: "oynat_durdur" | "sonraki" | "onceki"."""
         ok = False
@@ -351,6 +398,11 @@ class Api:
         """Uygulama cikisinda: engine, muzik, zamanlayici ve cihaz kapanir (sekil korunur)."""
         self._engine.stop()
         self._music.stop()
+        if getattr(self, "_kutuphane", None) is not None:
+            try:
+                self._kutuphane.durdur()
+            except Exception:
+                pass
         with self._lock:
             if self._timer is not None:
                 self._timer.cancel()
@@ -418,6 +470,7 @@ class Api:
             "efekt_max": efekt_mod.EFEKT_MAX,
             "send_hz": self._send_hz,
             "lab_demo": self._demo,
+            "kutuphane": self._kutuphane_durum(),
             "spec_shift": self._spec_shift,
             "spec_smooth": self._spec_smooth,
         }

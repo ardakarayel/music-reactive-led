@@ -27,6 +27,11 @@ class Boru:
         self.vokal_isik = True   # False: isik motoru vokali kullanmaz (eski davranis)
         self.taban_ton = None
         self.son_viz = None      # Dionysos: gorsellestirme verisi (JSON uyumlu sozluk); diger modlarda None
+        # Kutuphane (Arda, 2026-11-19): calan sarkinin Roformer haritasi varsa vokal, kick/snare ve bas
+        # canli tahmin yerine haritadan gelir. harita_fn() -> {"vokal","vokal_var","bas","kick","snare"} | None
+        self.harita_fn = None
+        self.harita_aktif = False
+        self._h_var_onceki = False
 
     def ayarla(self, mod=None, hassasiyet=None, yogunluk=None, taban_ton="degismez", params=None):
         if hassasiyet is not None:
@@ -47,6 +52,7 @@ class Boru:
         if b == 2 and blok.shape[1] == 2:
             merkez = self.vokal.stereo_merkez(blok)   # gercek zamanli stereo kancasi (laboratuvar mono)
         self.son_vokal = self.vokal.guncelle(oz, self.dinleyici.son_mel, merkez=merkez, tum=self.dinleyici.son_tum)
+        self._harita_uygula(oz)
         if self.dionysos:
             ozet = spektrum_ozeti(self.dinleyici.son_tum, self.dinleyici.son_mel)
             kare = self.isik.kare(oz, rd, self.son_vokal, ozet=ozet)
@@ -54,6 +60,29 @@ class Boru:
             return oz, rd, bd, kare
         kare = self.isik.kare(oz, rd, bd, self.taban_ton, vokal=self.son_vokal if self.vokal_isik else None)
         return oz, rd, bd, kare
+
+    def _harita_uygula(self, oz):
+        h = None
+        if self.harita_fn is not None:
+            try:
+                h = self.harita_fn()
+            except Exception:
+                h = None
+        self.harita_aktif = h is not None
+        if h is None:
+            oz.harita_bas = None
+            return
+        v = self.son_vokal
+        var = bool(h.get("vokal_var"))
+        v.vokal_guc = float(h.get("vokal", 0.0))
+        v.vokal = 1.0 if var else 0.0
+        v.vokal_giris = var and not self._h_var_onceki
+        v.vokal_cikis = self._h_var_onceki and not var
+        v.vokal_var = var
+        self._h_var_onceki = var
+        oz.kick_var = bool(h.get("kick"))
+        oz.snare_var = bool(h.get("snare"))
+        oz.harita_bas = float(h.get("bas", 0.0))
 
     def sifirla(self):
         for p in (self.dinleyici, self.ritim, self.bolum, self.isik, self.vokal):

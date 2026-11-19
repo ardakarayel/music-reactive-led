@@ -27,6 +27,7 @@ A Windows desktop app that listens to whatever your PC is playing (Spotify, YouT
   - Now-playing box with play/pause, next and previous.
   - Save, save as, rename, delete and export modes (`modlar.json`).
 - Follows the default audio output: switch from speakers to headphones and it keeps working.
+- **Library (optional, GPU):** while you listen on Spotify, songs you play from start to finish are recorded from the Spotify app only (Windows process loopback, nothing else gets mixed in), separated offline with BS-Roformer and HTDemucs, and turned into a small map: clean vocal loudness, kick and snare hits from the drum stem, and the bass line separate from the kick. Next time the song plays, Dionysos uses the map instead of live guesses. Audio is deleted after analysis; only the map (tens of KB) is kept, and a song is learned once. Setup: create `.venv-ayir` with a CUDA build of PyTorch and `audio-separator` (see `ayir/ayir.py`).
 - System tray icon, global shortcut `Ctrl+Alt+L` (power on/off), single-instance window.
 
 ## How it works
